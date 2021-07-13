@@ -127,10 +127,19 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
             HAL_HCD_DisableInt(hhcd, chnum);
 
         } else {
-            td->state = (urb_state == URB_DONE) ?  USB_TYPE_IDLE : USB_TYPE_ERROR;
+            if (urb_state == URB_DONE) {
+                td->state = USB_TYPE_IDLE;
+            }
+            else if (urb_state == URB_ERROR) {
+                td->state = USB_TYPE_ERROR;
+            } else {
+                td->state = USB_TYPE_PROCESSING;
+            }
         }
-        td->currBufPtr += HAL_HCD_HC_GetXferCount(hhcd, chnum);
-        (obj->*func)(addr);
+        if (td->state == USB_TYPE_IDLE) {
+            td->currBufPtr += HAL_HCD_HC_GetXferCount(hhcd, chnum);
+            (obj->*func)(addr);
+        }
     } else {
         if (urb_state != 0) {
             //USB_DBG_EVENT("spurious %d %d", chnum, urb_state);
