@@ -114,7 +114,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
                         return;
 #if defined(MAX_NYET_RETRY)
                     } else {
-                        USB_ERR("urb_state != URB_NOTREADY");
+                        //USB_ERR("urb_state != URB_NOTREADY");
                     }
 #endif
                     break;
@@ -133,7 +133,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
         (obj->*func)(addr);
     } else {
         if (urb_state != 0) {
-            USB_DBG_EVENT("spurious %d %d", chnum, urb_state);
+            //USB_DBG_EVENT("spurious %d %d", chnum, urb_state);
         }
     }
 }
@@ -190,7 +190,7 @@ void USBHALHost::enableList(ENDPOINT_TYPE type)
         if (control_disable == 0) {
             NVIC_EnableIRQ(USBHAL_IRQn);
         } else {
-            printf("reent\n");
+            //printf("reent\n");
         }
     }
 }
@@ -202,7 +202,7 @@ bool USBHALHost::disableList(ENDPOINT_TYPE type)
         NVIC_DisableIRQ(USBHAL_IRQn);
         control_disable++;
         if (control_disable > 1) {
-            printf("disable reentrance !!!\n");
+           //printf("disable reentrance !!!\n");
         }
         return true;
     }
