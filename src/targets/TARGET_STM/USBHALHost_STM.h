@@ -301,8 +301,15 @@ USBHALHost::USBHALHost()
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 #endif
 
+#ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+#ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+    __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+#endif
+
     // Set USB interrupt
-    HAL_NVIC_SetPriority(USBHAL_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(USBHAL_IRQn, 0, 0);
     NVIC_SetVector(USBHAL_IRQn, (uint32_t)&_usbisr);
 }
 
