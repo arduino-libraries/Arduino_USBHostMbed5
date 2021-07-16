@@ -1,14 +1,11 @@
-#include "USBHostMbed5.h"
-#include "USBHostMSD/USBHostMSD.h"
-#include "USBHostHub/USBHostHub.h"
-#include "USBHostSerial/USBHostSerial.h"
-#include "DigitalOut.h"
-#include "FATFileSystem.h"
+#include <USBHostMbed5.h>
+#include <DigitalOut.h>
+#include <FATFileSystem.h>
 
 USBHostMSD msd;
-mbed::FATFileSystem fs("fs");
+mbed::FATFileSystem usb("usb");
 
-mbed::DigitalOut pin5(PC_6, 0);
+// mbed::DigitalOut pin5(PC_6, 0);
 mbed::DigitalOut otg(PB_8, 1);
 
 void setup() {
@@ -22,7 +19,7 @@ void setup() {
   }
 
   Serial.println("Mounting USB device...");
-  int err =  fs.mount(&msd);
+  int err =  usb.mount(&msd);
   if (err) {
     Serial.print("Error mounting USB device ");
     Serial.println(err);
@@ -33,8 +30,8 @@ void setup() {
   struct dirent *ent;
   int dirIndex = 0;
   int res = 0;
-  Serial.println("Open /fs/numbers.txt");
-  FILE *f = fopen("/fs/numbers.txt", "w+");
+  Serial.println("Open /usb/numbers.txt");
+  FILE *f = fopen("/usb/numbers.txt", "w+");
   for (int i = 0; i < 10; i++) {
     Serial.print("Writing numbers (");
     Serial.print(i);

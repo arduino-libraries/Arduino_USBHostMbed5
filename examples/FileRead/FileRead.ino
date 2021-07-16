@@ -11,36 +11,35 @@
     
   This example code is in the public domain.
 */
-#include "USBHostMbed5.h"
-#include "USBHostMSD/USBHostMSD.h"
-#include "USBHostHub/USBHostHub.h"
-#include "USBHostSerial/USBHostSerial.h"
-#include "DigitalOut.h"
-#include "FATFileSystem.h"
+#include <USBHostMbed5.h>
+#include <DigitalOut.h>
+#include <FATFileSystem.h>
 
 USBHostMSD msd;
-mbed::FATFileSystem fs("fs");
+mbed::FATFileSystem usb("usb");
 
 mbed::DigitalOut pin5(PC_6, 0);
 
 // If you are using a Portenta Machine Control uncomment the following line
-//mbed::DigitalOut otg(PB_8, 1);
+mbed::DigitalOut otg(PB_14, 0);
  
 #define BUFFER_MAX_LEN 64
 void setup() {
   Serial.begin(115200);
   while (!Serial);
 
+  delay(2500);
+  Serial.println("Starting USB File Read example...");
+
   // if you are using a Max Carrier uncomment the following line
   //start_hub();
 
   while (!msd.connect()) {
-    //while (!port.connected()) {
     delay(1000);
   }
 
   Serial.println("Mounting USB device...");
-  int err =  fs.mount(&msd);
+  int err =  usb.mount(&msd);
   if (err) {
     Serial.print("Error mounting USB device ");
     Serial.println(err);
@@ -52,12 +51,12 @@ void setup() {
   int dirIndex = 0;
   int res = 0;
   Serial.println("Open file..");
-  FILE *f = fopen("/fs/Arduino.txt", "r+");
-  char buf[2];
-  Serial.println("File conntet:");
+  FILE *f = fopen("/usb/Arduino.txt", "r+");
+  char buf[256];
+  Serial.println("File content:");
 
-  while (fgets(buf, 2, f) != NULL) {
-    Serial.println(buf);
+  while (fgets(buf, 256, f) != NULL) {
+    Serial.print(buf);
   }
 
   Serial.println("File closing");
