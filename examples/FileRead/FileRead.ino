@@ -5,12 +5,13 @@
   read from an existing file.
   to use this sketch create a .txt file named Arduino.txt,
   in your storage device and write some content inside.
-  
+
   The circuit:
    - Portenta H7
-    
+
   This example code is in the public domain.
 */
+
 #include <USBHostMbed5.h>
 #include <DigitalOut.h>
 #include <FATFileSystem.h>
@@ -18,12 +19,9 @@
 USBHostMSD msd;
 mbed::FATFileSystem usb("usb");
 
-mbed::DigitalOut pin5(PC_6, 0);
-
 // If you are using a Portenta Machine Control uncomment the following line
 mbed::DigitalOut otg(PB_14, 0);
  
-#define BUFFER_MAX_LEN 64
 void setup() {
   Serial.begin(115200);
   while (!Serial);

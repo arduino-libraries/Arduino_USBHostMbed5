@@ -1,3 +1,15 @@
+/*
+  Portenta - FileWrite
+
+  The sketch shows how to mount an usb storage device and how to
+  write a file, eventually overwriting the original content.
+
+  The circuit:
+   - Portenta H7
+
+  This example code is in the public domain.
+*/
+
 #include <USBHostMbed5.h>
 #include <DigitalOut.h>
 #include <FATFileSystem.h>
