@@ -16,7 +16,13 @@
 
 #ifdef TARGET_STM
 
+#define PORTENTA_USBHOST_HS
+
+#if defined(PORTENTA_USBHOST_HS)
+#define USBx_BASE   USB1_OTG_HS_PERIPH_BASE
+#else
 #define USBx_BASE   USB2_OTG_FS_PERIPH_BASE
+#endif
 
 #include "mbed.h"
 #include "USBHost/USBHALHost.h"
