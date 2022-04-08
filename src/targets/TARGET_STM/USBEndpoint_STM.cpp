@@ -65,6 +65,7 @@ void USBEndpoint::init(HCED *hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir_
     state = USB_TYPE_IDLE;
     speed = false;
 }
+
 void USBEndpoint::setSize(uint32_t size)
 {
     this->size = size;
@@ -80,7 +81,7 @@ void USBEndpoint::setDeviceAddress(uint8_t addr)
     if (this->speed) {
         USB_WARN("small speed device on hub not supported");
     }
-    MBED_ASSERT(HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, addr, hcd_speed,  type, size) != HAL_BUSY);
+    HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, addr, hcd_speed,  type, size);;
     this->device_address = addr;
 
 }
@@ -106,13 +107,13 @@ void USBEndpoint::setState(USB_TYPE st)
         if ((*addr) && (type != INTERRUPT_ENDPOINT)) {
             this->ep_queue.put((uint8_t *)1);
         }
-        MBED_ASSERT(HAL_HCD_HC_Halt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num) != HAL_BUSY);
+        HAL_HCD_HC_Halt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
         HAL_HCD_DisableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
         *addr = 0;
 
     }
     if (st == USB_TYPE_ERROR) {
-        MBED_ASSERT(HAL_HCD_HC_Halt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num) != HAL_BUSY);
+        HAL_HCD_HC_Halt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
         HAL_HCD_DisableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
 
     }
@@ -120,7 +121,7 @@ void USBEndpoint::setState(USB_TYPE st)
         uint8_t hcd_speed = HCD_SPEED_FULL;
         /* small speed device with hub not supported
            if (this->speed) hcd_speed = HCD_SPEED_LOW;*/
-        MBED_ASSERT(HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, 0, hcd_speed,  type, size) != HAL_BUSY);
+        HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, 0, hcd_speed,  type, size);
     }
 }
 
@@ -157,7 +158,7 @@ USB_TYPE USBEndpoint::queueTransfer()
     /*  dir /setup is inverted for ST */
     /* token is useful only ctrl endpoint */
     /*  last parameter is ping ? */
-    MBED_ASSERT(HAL_HCD_HC_SubmitRequest((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, dir - 1, type, !setup, (uint8_t *) td_current->currBufPtr, transfer_len, 0) == HAL_OK);
+    HAL_HCD_HC_SubmitRequest((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, dir - 1, type, !setup, (uint8_t *) td_current->currBufPtr, transfer_len, 1);
     HAL_HCD_EnableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
 
     return USB_TYPE_PROCESSING;

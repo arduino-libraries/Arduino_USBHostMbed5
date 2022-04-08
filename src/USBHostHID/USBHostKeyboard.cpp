@@ -120,9 +120,14 @@ bool USBHostKeyboard::connect()
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {
 
-            if (host->enumerate(dev, this)) {
+            printf("got device\n");
+            int ret = host->enumerate(dev, this);
+            printf("ret: %d\n", ret);
+            if (ret) {
                 break;
             }
+
+            printf("after enumerate\n");
 
             if (keyboard_device_found) {
                 {
@@ -183,6 +188,10 @@ void USBHostKeyboard::rxHandler()
 
 /*virtual*/ bool USBHostKeyboard::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) //Must return true if the interface should be parsed
 {
+    printf("intf_class: %d\n", intf_class);
+    printf("intf_subclass: %d\n", intf_subclass);
+    printf("intf_protocol: %d\n", intf_protocol);
+
     if ((keyboard_intf == -1) &&
             (intf_class == HID_CLASS) &&
             (intf_subclass == 0x01) &&
@@ -195,6 +204,7 @@ void USBHostKeyboard::rxHandler()
 
 /*virtual*/ bool USBHostKeyboard::useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir) //Must return true if the endpoint will be used
 {
+    printf("intf_nb: %d\n", intf_nb);
     if (intf_nb == keyboard_intf) {
         if (type == INTERRUPT_ENDPOINT && dir == IN) {
             keyboard_device_found = true;

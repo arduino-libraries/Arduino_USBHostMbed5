@@ -119,7 +119,7 @@ enum ENDPOINT_TYPE {
 
 #else
 
-#define TD_TIMEOUT_CTRL  600
+#define TD_TIMEOUT_CTRL  1000
 #define TD_TIMEOUT  2000
 #define  TD_SETUP           (uint32_t)(0)                  // Direction of Setup Packet
 #define  TD_IN              (uint32_t)(0x00100000)         // Direction In

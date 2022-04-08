@@ -26,7 +26,7 @@
 #endif
 #endif
 
-#if defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
+#if defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI) || defined(TARGET_GIGA)
 #define USBHAL_IRQn  OTG_HS_IRQn
 #else
 #define USBHAL_IRQn  OTG_FS_IRQn
@@ -37,6 +37,8 @@
 #define TD_SIZE  sizeof(HCTD)
 
 #define TOTAL_SIZE (HCCA_SIZE + (MAX_ENDPOINT * ED_SIZE) + (MAX_TD * TD_SIZE))
+
+#define MAX_NYET_RETRY      5
 
 /* STM device FS have 11 channels (definition is for 60 channels) */
 static volatile  uint8_t usb_buf[TOTAL_SIZE];
@@ -100,6 +102,11 @@ static gpio_t gpio_powerpin;
 #define USB_POWER_OFF 1
 #define USB_POWERPIN_CONFIG {}
 
+#elif defined(TARGET_GIGA)
+#define USB_POWER_ON  0
+#define USB_POWER_OFF 1
+#define USB_POWERPIN_CONFIG {}
+
 #elif defined(TARGET_DISCO_F769NI)
 #define USB_POWER_ON  0
 #define USB_POWER_OFF 1
@@ -136,7 +143,7 @@ void usb_vbus(uint8_t state)
     } else {
         /* The board does not have GPIO pin to control usb supply */
     }
-    rtos::ThisThread::sleep_for(0.2);
+    rtos::ThisThread::sleep_for(1.0f);
 }
 
 
@@ -157,6 +164,35 @@ USBHALHost::USBHALHost()
     hhcd->Instance = USB_OTG_HS;
     hhcd->Init.speed =  HCD_SPEED_HIGH;
     hhcd->Init.phy_itface = HCD_PHY_ULPI;
+
+#elif defined(TARGET_GIGA)
+    hhcd->Instance = USB_OTG_HS;
+    hhcd->Init.speed =  HCD_SPEED_FULL;
+    hhcd->Init.phy_itface = USB_OTG_EMBEDDED_PHY;
+
+#if 1
+    /* Configure the clock recovery system (CRS) ********************************/
+    /* Enable CRS Clock */
+    __CRS_CLK_ENABLE();
+
+    static RCC_CRSInitTypeDef RCC_CRSInitStruct;
+    
+    /* Default Synchro Signal division factor (not divided) */
+    RCC_CRSInitStruct.Prescaler = RCC_CRS_SYNC_DIV1;  
+    /* Set the SYNCSRC[1:0] bits according to CRS_Source value */
+    RCC_CRSInitStruct.Source = RCC_CRS_SYNC_SOURCE_USB2;
+    /* HSI48 is synchronized with USB SOF at 1KHz rate */
+    RCC_CRSInitStruct.ReloadValue =  __HAL_RCC_CRS_CALCULATE_RELOADVALUE(48000000, 1000);
+    RCC_CRSInitStruct.ErrorLimitValue = RCC_CRS_ERRORLIMIT_DEFAULT;  
+    /* Set the TRIM[5:0] to the default value */
+    RCC_CRSInitStruct.HSI48CalibrationValue = 0x1D;
+    /* Start automatic synchronization */ 
+    HAL_RCCEx_CRSConfig(&RCC_CRSInitStruct);
+
+    uint32_t res = HAL_RCCEx_CRSWaitSynchronization(4000);
+    printf("HAL_RCCEx_CRSWaitSynchronization: 0x%x\n", res);
+#endif
+
 #else
     hhcd->Instance = USB_OTG_FS;
     hhcd->Init.speed =  HCD_SPEED_FULL;
@@ -169,6 +205,7 @@ USBHALHost::USBHALHost()
     hhcd->Init.Sof_enable = 0;
     hhcd->Init.vbus_sensing_enable = 0;
     hhcd->Init.use_external_vbus = 1;
+    hhcd->Init.battery_charging_enable = 0;
     hhcd->Init.lpm_enable = 0;
 
     HALPriv->inst = this;
@@ -223,6 +260,11 @@ USBHALHost::USBHALHost()
     pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS)); // ID
     __HAL_RCC_GPIOJ_CLK_ENABLE();
     pin_function(PJ_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // VBUS
+
+#elif defined(TARGET_GIGA)
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    pin_function(PB_14, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_OTG2_FS)); // DM
+    pin_function(PB_15, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_OTG2_FS)); // DP
 
 #elif defined(TARGET_DISCO_F746NG_HS)
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -296,6 +338,8 @@ USBHALHost::USBHALHost()
 
 #if defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
+    __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+#elif defined(TARGET_GIGA)
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 #else
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();

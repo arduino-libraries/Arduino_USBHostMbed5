@@ -293,7 +293,7 @@ void USBHost::usb_process()
     }
 }
 
-USBHost::USBHost() : usbThread(osPriorityNormal, USB_THREAD_STACK)
+USBHost::USBHost() : usbThread(osPriorityHigh, USB_THREAD_STACK)
 {
 #ifndef USBHOST_OTHER
     headControlEndpoint = NULL;
@@ -915,6 +915,8 @@ USB_TYPE USBHost::enumerate(USBDeviceConnected * dev, IUSBEnumerator* pEnumerato
         // don't enumerate a device which all interfaces are registered to a specific driver
         int index = findDevice(dev);
 
+        printf("index: %d\n", index);
+
         if (index == -1) {
             return USB_TYPE_ERROR;
         }
@@ -1202,6 +1204,7 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
     {
         osEvent  event = control->ep_queue.get(TD_TIMEOUT_CTRL);
         if (event.status == osEventTimeout) {
+            USB_DBG_TRANSFER("TIMEOUT");
             disableList(CONTROL_ENDPOINT);
             control->setState(USB_TYPE_ERROR);
             control->ep_queue.get(0);

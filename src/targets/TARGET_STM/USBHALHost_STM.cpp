@@ -16,12 +16,19 @@
 
 #ifdef TARGET_STM
 
+#if defined(TARGET_PORTENTA_H7)
 #define USBx_BASE   USB2_OTG_FS_PERIPH_BASE
+#elif defined(TARGET_GIGA)
+#define USBx_BASE   USB1_OTG_HS_PERIPH_BASE
+#else
+#define USBx_BASE   USB1_OTG_HS_PERIPH_BASE
+#endif
 
 #include "mbed.h"
 #include "USBHost/USBHALHost.h"
 #include "USBHost/dbg.h"
 #include "pinmap.h"
+#include "mbed_chrono.h"
 
 #include "USBHALHost_STM.h"
 
@@ -94,7 +101,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
                         td->currBufPtr += max_size;
                         td->size -= max_size;
                         length = td->size <= max_size ? td->size : max_size;
-                        MBED_ASSERT(HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir, type, !td->setup, (uint8_t *) td->currBufPtr, length, 0) == HAL_OK);
+                        HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir, type, !td->setup, (uint8_t *) td->currBufPtr, length, 0);
                         HAL_HCD_EnableInt(hhcd, chnum);
                         return;
                     }
@@ -109,7 +116,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
                         td->retry++;
 #endif
                         length = td->size <= max_size ? td->size : max_size;
-                        MBED_ASSERT(HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir, type, !td->setup, (uint8_t *) td->currBufPtr, length, 0) == HAL_OK);
+                        HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir, type, !td->setup, (uint8_t *) td->currBufPtr, length, 0);
                         HAL_HCD_EnableInt(hhcd, chnum);
                         return;
 #if defined(MAX_NYET_RETRY)
@@ -152,13 +159,12 @@ USBHALHost *USBHALHost::instHost;
 
 void USBHALHost::init()
 {
-
     NVIC_DisableIRQ(USBHAL_IRQn);
     NVIC_SetVector(USBHAL_IRQn, (uint32_t)(_usbisr));
     HAL_HCD_Init((HCD_HandleTypeDef *) usb_hcca);
-    NVIC_EnableIRQ(USBHAL_IRQn);
     control_disable = 0;
     HAL_HCD_Start((HCD_HandleTypeDef *) usb_hcca);
+    NVIC_EnableIRQ(USBHAL_IRQn);
     usb_vbus(1);
 }
 
@@ -273,11 +279,12 @@ void USBHALHost::freeTD(volatile uint8_t *td)
     tdBufAlloc[i] = false;
 }
 
+using namespace mbed::chrono_literals;
 
 void USBHALHost::resetRootHub()
 {
     // Initiate port reset
-    rtos::ThisThread::sleep_for(0.2);
+    rtos::ThisThread::sleep_for(200);
     HAL_HCD_ResetPort((HCD_HandleTypeDef *)usb_hcca);
 }
 
