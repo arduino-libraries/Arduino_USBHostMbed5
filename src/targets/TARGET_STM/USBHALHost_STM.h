@@ -178,7 +178,7 @@ USBHALHost::USBHALHost()
     static RCC_CRSInitTypeDef RCC_CRSInitStruct;
     
     /* Default Synchro Signal division factor (not divided) */
-    RCC_CRSInitStruct.Prescaler = RCC_CRS_SYNC_DIV1;  
+    RCC_CRSInitStruct.Prescaler = RCC_CRS_SYNC_DIV1;
     /* Set the SYNCSRC[1:0] bits according to CRS_Source value */
     RCC_CRSInitStruct.Source = RCC_CRS_SYNC_SOURCE_USB2;
     /* HSI48 is synchronized with USB SOF at 1KHz rate */
@@ -189,8 +189,7 @@ USBHALHost::USBHALHost()
     /* Start automatic synchronization */ 
     HAL_RCCEx_CRSConfig(&RCC_CRSInitStruct);
 
-    uint32_t res = HAL_RCCEx_CRSWaitSynchronization(4000);
-    printf("HAL_RCCEx_CRSWaitSynchronization: 0x%x\n", res);
+    HAL_RCCEx_CRSWaitSynchronization(1000);
 #endif
 
 #else

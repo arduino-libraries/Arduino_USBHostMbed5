@@ -915,8 +915,6 @@ USB_TYPE USBHost::enumerate(USBDeviceConnected * dev, IUSBEnumerator* pEnumerato
         // don't enumerate a device which all interfaces are registered to a specific driver
         int index = findDevice(dev);
 
-        printf("index: %d\n", index);
-
         if (index == -1) {
             return USB_TYPE_ERROR;
         }
