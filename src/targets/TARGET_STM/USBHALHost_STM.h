@@ -103,9 +103,9 @@ static gpio_t gpio_powerpin;
 #define USB_POWERPIN_CONFIG {}
 
 #elif defined(TARGET_GIGA)
-#define USB_POWER_ON  0
-#define USB_POWER_OFF 1
-#define USB_POWERPIN_CONFIG {}
+#define USB_POWER_ON  1
+#define USB_POWER_OFF 0
+#define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOA_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PA_15, USB_POWER_OFF);}
 
 #elif defined(TARGET_DISCO_F769NI)
 #define USB_POWER_ON  0
