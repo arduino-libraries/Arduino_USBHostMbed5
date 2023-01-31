@@ -329,6 +329,8 @@ USBHALHost::USBHALHost()
 #error "USB pins are not configured !"
 #endif
 
+    NVIC_DisableIRQ(USBHAL_IRQn);
+
     // Configure USB POWER pin
     USB_POWERPIN_CONFIG;
 
