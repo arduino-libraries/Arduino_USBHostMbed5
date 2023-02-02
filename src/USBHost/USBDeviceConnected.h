@@ -21,6 +21,8 @@
 #include "USBHost/USBEndpoint.h"
 #include "USBHost/USBHostConf.h"
 #include "rtos.h"
+#undef MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL
+#define MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL  0
 #include "Callback.h"
 
 class USBHostHub;
@@ -106,7 +108,7 @@ public:
     template<typename T>
     inline void onDisconnect(uint8_t intf_nb, T* tptr, void (T::*mptr)(void)) {
         if ((mptr != NULL) && (tptr != NULL)) {
-            intf[intf_nb].detach = mbed::callback(tptr, mptr);
+            intf[intf_nb].detach = mbed::Callback<void()>(tptr, mptr);
         }
     }
 
@@ -118,6 +120,18 @@ public:
      */
     inline void onDisconnect(uint8_t intf_nb, void (*fn)(void)) {
         if (fn != NULL) {
+            intf[intf_nb].detach = fn;
+        }
+    }
+
+    /**
+     * Attach a callback called when the device has been disconnected
+     *
+     *  @param intf_nb interface number
+     *  @param fn function pointer
+     */
+    inline void onDisconnect(uint8_t intf_nb, const mbed::Callback<void()>& fn) {
+        if (fn) {
             intf[intf_nb].detach = fn;
         }
     }

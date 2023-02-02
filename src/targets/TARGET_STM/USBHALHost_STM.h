@@ -123,7 +123,8 @@ static gpio_t gpio_powerpin;
 #elif defined(TARGET_OPTA)
 #define USB_POWER_ON  0
 #define USB_POWER_OFF 1
-#define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOG_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PG_1, USB_POWER_OFF);}
+//#define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOG_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PG_1, USB_POWER_OFF);}
+#define USB_POWERPIN_CONFIG
 
 #else
 #error "USB power pin is not configured !"
@@ -144,9 +145,10 @@ void usb_vbus(uint8_t state)
     rtos::ThisThread::sleep_for(0.2);
 }
 
-
 USBHALHost::USBHALHost()
 {
+    NVIC_DisableIRQ(USBHAL_IRQn);
+
     instHost = this;
     HCD_HandleTypeDef *hhcd = {0};
     USBHALHost_Private_t *HALPriv = new (USBHALHost_Private_t);

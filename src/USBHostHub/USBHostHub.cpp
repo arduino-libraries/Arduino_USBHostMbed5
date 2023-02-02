@@ -105,7 +105,7 @@ bool USBHostHub::connect(USBDeviceConnected * dev)
 
         USB_INFO("New HUB: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, hub_intf);
         dev->setName("Hub", hub_intf);
-        host->registerDriver(dev, hub_intf, this, &USBHostHub::disconnect);
+        host->registerDriver(dev, hub_intf, ::mbed::callback(this, &USBHostHub::disconnect));
 
         int_in->attach(this, &USBHostHub::rxHandler);
 

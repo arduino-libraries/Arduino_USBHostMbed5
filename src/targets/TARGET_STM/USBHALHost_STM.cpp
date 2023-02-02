@@ -149,10 +149,15 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
 
 USBHALHost *USBHALHost::instHost;
 
+#if defined(TARGET_OPTA)
+#include <usb_phy_api.h>
+#endif
 
 void USBHALHost::init()
 {
-
+#if defined(TARGET_OPTA)
+    get_usb_phy()->deinit();
+#endif
     NVIC_DisableIRQ(USBHAL_IRQn);
     NVIC_SetVector(USBHAL_IRQn, (uint32_t)(_usbisr));
     HAL_HCD_Init((HCD_HandleTypeDef *) usb_hcca);

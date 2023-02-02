@@ -30,7 +30,6 @@
 
 USBHostMSD::USBHostMSD()
 {
-    host = USBHost::getHostInst();
     /*  register an object in FAT */
 
     init_usb();
@@ -64,6 +63,7 @@ bool USBHostMSD::connect()
     if (dev_connected) {
         return true;
     }
+    host = USBHost::getHostInst();
 
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {
@@ -87,7 +87,7 @@ bool USBHostMSD::connect()
 
                 USB_INFO("New MSD device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, msd_intf);
                 dev->setName("MSD", msd_intf);
-                host->registerDriver(dev, msd_intf, this, &USBHostMSD::init_usb);
+                host->registerDriver(dev, msd_intf, ::mbed::callback(this, &USBHostMSD::init_usb));
 
                 dev_connected = true;
                 return true;

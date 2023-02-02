@@ -189,6 +189,15 @@ public:
         }
     }
 
+    inline void registerDriver(USBDeviceConnected * dev, uint8_t intf, mbed::Callback<void()> fn) {
+        int index = findDevice(dev);
+        if ((index != -1) && (fn != NULL)) {
+            USB_DBG("register driver for dev: %p on intf: %d", dev, intf);
+            deviceAttachedDriver[index][intf] = true;
+            dev->onDisconnect(intf, fn);
+        }
+    }
+
     /**
      * Instantiate to protect USB thread from accessing shared objects (USBConnectedDevices and Interfaces)
      */

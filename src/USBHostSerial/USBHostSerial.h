@@ -24,6 +24,9 @@
 #include "USBHost/USBHost.h"
 #include "Stream.h"
 #include "MtxCircBuffer.h"
+
+#undef MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL
+#define MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL  0
 #include "Callback.h"
 
 /**

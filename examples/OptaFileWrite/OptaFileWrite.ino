@@ -19,9 +19,6 @@
 USBHostMSD msd;
 mbed::FATFileSystem usb("usb");
 
-// mbed::DigitalOut pin5(PC_6, 0);
-//mbed::DigitalOut otg(PG_1, 0);
-
 #define Serial Serial1
 
 void turnOnLed() {
@@ -29,13 +26,12 @@ void turnOnLed() {
 }
 
 void setup() {
-  get_usb_phy()->deinit();
   Serial.begin(115200);
   while (!Serial);
 
+#if 0
   Wire1.begin();
 
-#if 0
   Wire1.beginTransmission(0x21);
   Wire1.write(0x5);
   Wire1.write(0x1);
@@ -45,7 +41,6 @@ void setup() {
   Wire1.write(0x5);
   Wire1.write(0x0);
   Wire1.endTransmission();
-#endif
 
   delay(100);
 
@@ -64,10 +59,9 @@ void setup() {
   digitalWrite(LED_BUILTIN, LOW);
 
   attachInterrupt(PD_8, turnOnLed, FALLING);
+#endif
 
-  msd.connect();
-
-  while (!msd.connected()) {
+  while (!msd.connect()) {
     //while (!port.connected()) {
     digitalWrite(LED_BUILTIN, HIGH);
     delay(500);
@@ -116,5 +110,8 @@ void setup() {
 }
 
 void loop() {
-
+  delay(1000);
+  if (!msd.connected()) {
+    msd.connect();
+  }
 }
