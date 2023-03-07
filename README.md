@@ -4,6 +4,7 @@
 ==============
 [![Spell Check status](https://github.com/facchinm/USBHostMbed5/actions/workflows/spell-check.yml/badge.svg)](https://github.com/facchinm/USBHostMbed5/actions/workflows/spell-check.yml)
 [![Sync Labels status](https://github.com/facchinm/USBHostMbed5/actions/workflows/sync-labels.yml/badge.svg)](https://github.com/facchinm/USBHostMbed5/actions/workflows/sync-labels.yml)
+[![Arduino Lint](https://github.com/facchinm/USBHostMbed5/workflows/Arduino%20Lint/badge.svg)](https://github.com/facchinm/USBHostMbed5/actions?workflow=Arduino+Lint)
 
 ARM Mbed5 USB Host library ported for [ArduinoCore-mbed](https://github.com/arduino/ArduinoCore-mbed) enabled boards.
 
