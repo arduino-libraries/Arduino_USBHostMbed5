@@ -52,7 +52,7 @@ public:
     * Attach an USBEndpoint to this device
     *
     * @param intf_nb interface number
-    * @param ep pointeur on the USBEndpoint which will be attached
+    * @param ep pointer on the USBEndpoint which will be attached
     * @returns true if successful, false otherwise
     */
     bool addEndpoint(uint8_t intf_nb, USBEndpoint * ep);

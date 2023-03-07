@@ -107,7 +107,7 @@ public:
     }
 
     /**
-    * Call the handler associted to the end of a transfer
+    * Call the handler associated to the end of a transfer
     */
     inline void call() {
         if (rx)

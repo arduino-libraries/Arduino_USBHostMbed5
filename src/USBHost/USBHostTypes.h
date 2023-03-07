@@ -188,7 +188,7 @@ typedef struct hcTd {
 typedef struct hcEd {
     __IO  uint32_t  control;        // Endpoint descriptor control
     __IO  HCTD *  tailTD;           // Physical address of tail in Transfer descriptor list
-    __IO  HCTD *  headTD;           // Physcial address of head in Transfer descriptor list
+    __IO  HCTD *  headTD;           // Physical address of head in Transfer descriptor list
     __IO  hcEd *  nextED;         // Physical address of next Endpoint descriptor
 } PACKED HCED;
 // ----------- Host Controller Communication Area ------------
