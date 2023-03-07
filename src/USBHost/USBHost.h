@@ -132,7 +132,7 @@ public:
     /**
     * reset a specific device
     *
-    * @param dev device which will be resetted
+    * @param dev device which will be reset
     */
     USB_TYPE resetDevice(USBDeviceConnected * dev);
 
