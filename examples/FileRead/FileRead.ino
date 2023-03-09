@@ -12,7 +12,7 @@
   This example code is in the public domain.
 */
 
-#include <USBHostMbed5.h>
+#include <Arduino_USBHostMbed5.h>
 #include <DigitalOut.h>
 #include <FATFileSystem.h>
 

@@ -1,5 +1,5 @@
 #include <FATFileSystem.h>
-#include <USBHostMbed5.h>
+#include <Arduino_USBHostMbed5.h>
 
 #include <Arduino_Portenta_OTA.h>
 
