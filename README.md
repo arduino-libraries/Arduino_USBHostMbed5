@@ -2,10 +2,10 @@
 
 `Arduino_USBHostMbed5`
 ==============
-[![Compile Examples status](https://github.com/arduino-libraries/Arduino_Arduino_USBHostMbed5/actions/workflows/compile-examples.yml/badge.svg)](https://github.com/arduino-libraries/Arduino_Arduino_USBHostMbed5/actions/workflows/compile-examples.yml)
-[![Spell Check status](https://github.com/arduino-libraries/Arduino_Arduino_USBHostMbed5/actions/workflows/spell-check.yml/badge.svg)](https://github.com/arduino-libraries/Arduino_Arduino_USBHostMbed5/actions/workflows/spell-check.yml)
-[![Sync Labels status](https://github.com/arduino-libraries/Arduino_Arduino_USBHostMbed5/actions/workflows/sync-labels.yml/badge.svg)](https://github.com/arduino-libraries/Arduino_Arduino_USBHostMbed5/actions/workflows/sync-labels.yml)
-[![Arduino Lint](https://github.com/arduino-libraries/Arduino_Arduino_USBHostMbed5/workflows/Arduino%20Lint/badge.svg)](https://github.com/arduino-libraries/Arduino_Arduino_USBHostMbed5/actions?workflow=Arduino+Lint)
+[![Compile Examples status](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions/workflows/compile-examples.yml/badge.svg)](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions/workflows/compile-examples.yml)
+[![Spell Check status](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions/workflows/spell-check.yml/badge.svg)](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions/workflows/spell-check.yml)
+[![Sync Labels status](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions/workflows/sync-labels.yml/badge.svg)](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions/workflows/sync-labels.yml)
+[![Arduino Lint](https://github.com/arduino-libraries/Arduino_USBHostMbed5/workflows/Arduino%20Lint/badge.svg)](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions?workflow=Arduino+Lint)
 
 ARM Mbed5 USB Host library ported for [ArduinoCore-mbed](https://github.com/arduino/ArduinoCore-mbed) enabled boards.
 
