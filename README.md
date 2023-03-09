@@ -7,7 +7,7 @@
 [![Sync Labels status](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions/workflows/sync-labels.yml/badge.svg)](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions/workflows/sync-labels.yml)
 [![Arduino Lint](https://github.com/arduino-libraries/Arduino_USBHostMbed5/workflows/Arduino%20Lint/badge.svg)](https://github.com/arduino-libraries/Arduino_USBHostMbed5/actions?workflow=Arduino+Lint)
 
-ARM Mbed5 USB Host library ported for [ArduinoCore-mbed](https://github.com/arduino/ArduinoCore-mbed) enabled boards.
+ARM Mbed5 USB Host library ported for [ArduinoCore-mbed](https://github.com/arduino/ArduinoCore-mbed) enabled boards with STM32H747 MCU's, such as [Arduino Portenta H7](https://store.arduino.cc/products/portenta-h7) and [Arduino Giga](https://store.arduino.cc/products/giga-r1-wifi).
 
 ## :mag_right: Resources
 
