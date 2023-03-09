@@ -12,7 +12,7 @@
 
 #include <DigitalOut.h>
 #include <FATFileSystem.h>
-#include <USBHostMbed5.h>
+#include <Arduino_USBHostMbed5.h>
 
 USBHostMSD msd;
 mbed::FATFileSystem usb("usb");
