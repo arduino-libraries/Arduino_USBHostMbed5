@@ -127,6 +127,11 @@ static gpio_t gpio_powerpin;
 #define USB_POWER_OFF 1
 #define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOJ_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PJ_6, USB_POWER_OFF);}
 
+#elif defined(TARGET_OPTA)
+#define USB_POWER_ON  0
+#define USB_POWER_OFF 1
+#define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOG_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PG_1, USB_POWER_OFF);}
+
 #else
 #error "USB power pin is not configured !"
 #endif
@@ -320,7 +325,7 @@ USBHALHost::USBHALHost()
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
     pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
 
-#elif defined(TARGET_PORTENTA_H7_M7) || defined(TARGET_PORTENTA_H7_M4)
+#elif defined(TARGET_PORTENTA_H7_M7) || defined(TARGET_PORTENTA_H7_M4) || defined(TARGET_OPTA)
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG2_FS)); // DM
