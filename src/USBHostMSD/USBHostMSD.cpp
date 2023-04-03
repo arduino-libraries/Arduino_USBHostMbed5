@@ -30,7 +30,6 @@
 
 USBHostMSD::USBHostMSD()
 {
-    host = USBHost::getHostInst();
     /*  register an object in FAT */
 
     init_usb();
@@ -64,6 +63,7 @@ bool USBHostMSD::connect()
     if (dev_connected) {
         return true;
     }
+    host = USBHost::getHostInst();
 
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {

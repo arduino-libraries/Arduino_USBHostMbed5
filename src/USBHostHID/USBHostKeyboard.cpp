@@ -87,7 +87,6 @@ static uint8_t keymap[4][0x39] = {
 
 USBHostKeyboard::USBHostKeyboard()
 {
-    host = USBHost::getHostInst();
     init();
 }
 
@@ -116,6 +115,7 @@ bool USBHostKeyboard::connect()
     if (dev_connected) {
         return true;
     }
+    host = USBHost::getHostInst();
 
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {

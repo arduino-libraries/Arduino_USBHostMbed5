@@ -149,6 +149,7 @@ void usb_vbus(uint8_t state)
 
 USBHALHost::USBHALHost()
 {
+    NVIC_DisableIRQ(USBHAL_IRQn);
     instHost = this;
     HCD_HandleTypeDef *hhcd = {0};
     USBHALHost_Private_t *HALPriv = new (USBHALHost_Private_t);

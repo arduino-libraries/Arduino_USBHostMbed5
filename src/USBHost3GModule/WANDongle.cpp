@@ -29,7 +29,6 @@
 
 WANDongle::WANDongle() : m_pInitializer(NULL), m_serialCount(0), m_totalInitializers(0)
 {
-    host = USBHost::getHostInst();
     init();
 }
 
@@ -48,6 +47,7 @@ bool WANDongle::tryConnect()
       USB_DBG("Device is already connected!");
       return true;
   }
+  host = USBHost::getHostInst();
 
   m_pInitializer = NULL;
 

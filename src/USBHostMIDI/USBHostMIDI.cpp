@@ -25,7 +25,6 @@
 #define SET_LINE_CODING 0x20
 
 USBHostMIDI::USBHostMIDI() {
-    host = USBHost::getHostInst();
     size_bulk_in = 0;
     size_bulk_out = 0;
     init();
@@ -49,6 +48,7 @@ bool USBHostMIDI::connect() {
     if (dev_connected) {
         return true;
     }
+    host = USBHost::getHostInst();
 
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {

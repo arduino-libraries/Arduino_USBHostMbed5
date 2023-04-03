@@ -71,5 +71,9 @@ void setup() {
 }
 
 void loop() {
-
+    delay(1000);
+    // handle disconnection and reconnection
+    if (!msd.connected()) {
+        msd.connect();
+    }
 }

@@ -28,7 +28,6 @@
 
 USBHostSerial::USBHostSerial()
 {
-    host = USBHost::getHostInst();
     ports_found = 0;
     dev_connected = false;
 }
@@ -45,6 +44,8 @@ void USBHostSerial::disconnect(void)
 }
 
 bool USBHostSerial::connect() {
+
+    host = USBHost::getHostInst();
 
     if (dev)
     {
@@ -109,7 +110,6 @@ bool USBHostSerial::connect() {
 
 USBHostMultiSerial::USBHostMultiSerial()
 {
-    host = USBHost::getHostInst();
     dev = NULL;
     memset(ports, NULL, sizeof(ports));
     ports_found = 0;
@@ -141,6 +141,8 @@ void USBHostMultiSerial::disconnect(void)
 }
 
 bool USBHostMultiSerial::connect() {
+
+    host = USBHost::getHostInst();
 
     if (dev)
     {
