@@ -37,6 +37,9 @@ jobs:
           - fqbn: arduino:mbed_giga:giga
             platforms: |
               - name: arduino:mbed_giga
+          - fqbn: arduino:mbed_opta:opta
+            platforms: |
+              - name: arduino:mbed_opta
 
     steps:
       - name: Checkout repository
@@ -53,6 +56,7 @@ jobs:
             - source-path: ./
             - name: Arduino_Portenta_OTA
             - name: Arduino_DebugUtils
+            - name: ArduinoRS485
           sketch-paths: |
             - examples
           enable-deltas-report: true
