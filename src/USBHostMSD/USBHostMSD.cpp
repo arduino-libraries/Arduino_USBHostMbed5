@@ -401,7 +401,7 @@ mbed::bd_size_t USBHostMSD::get_erase_size() const
 mbed::bd_size_t USBHostMSD::size() const
 {
     USB_DBG("FILESYSTEM: size ");
-    return (disk_init ? (mbed::bd_size_t)blockSize : 0);
+    return (disk_init ? (mbed::bd_size_t)blockCount*blockSize : 0);
 }
 
 const char *USBHostMSD::get_type() const
