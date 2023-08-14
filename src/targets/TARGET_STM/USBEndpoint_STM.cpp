@@ -118,10 +118,12 @@ void USBEndpoint::setState(USB_TYPE st)
         USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS;
         // Disable the channel
         USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS | USB_OTG_HCCHAR_CHENA;
-        // <-- Notice the lack of error handling here - after testing a lot of 
-        //     combinations, it seems that the USB host controller doesn't work fully
-        //     according to the reference manual in this aspect, which might also
-        //     be the reason for lacking error handling in the ST USB LL
+        // Notice the lack of error handling here - after testing a lot of 
+        // combinations, it seems that the USB host controller doesn't work fully
+        // according to the reference manual in this aspect, which might also
+        // be the reason for lacking error handling in the ST USB LL - instead,
+        // we use a 50 us delay to wait for the channel to disable
+        wait_us(50);
 
         HAL_HCD_DisableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
         *addr = 0;
@@ -132,10 +134,12 @@ void USBEndpoint::setState(USB_TYPE st)
         USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS;
         // Disable the channel
         USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS | USB_OTG_HCCHAR_CHENA;
-        // <-- Notice the lack of error handling here - after testing a lot of 
-        //     combinations, it seems that the USB host controller doesn't work fully
-        //     according to the reference manual in this aspect, which might also
-        //     be the reason for lacking error handling in the ST USB LL
+        // Notice the lack of error handling here - after testing a lot of 
+        // combinations, it seems that the USB host controller doesn't work fully
+        // according to the reference manual in this aspect, which might also
+        // be the reason for lacking error handling in the ST USB LL - instead,
+        // we use a 50 us delay to wait for the channel to disable
+        wait_us(50);
 
         HAL_HCD_DisableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
         uint8_t hcd_speed = HCD_SPEED_FULL;
