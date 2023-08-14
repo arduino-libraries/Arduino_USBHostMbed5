@@ -27,8 +27,13 @@ extern uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 extern void HAL_HCD_DisableInt(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 extern void HAL_HCD_EnableInt(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 
-
-
+#if defined(TARGET_PORTENTA_H7)
+#define USBx_BASE   USB2_OTG_FS_PERIPH_BASE
+#elif defined(TARGET_GIGA)
+#define USBx_BASE   USB1_OTG_HS_PERIPH_BASE
+#else
+#define USBx_BASE   USB1_OTG_HS_PERIPH_BASE
+#endif
 
 void USBEndpoint::init(HCED *hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir_, uint32_t size, uint8_t ep_number, HCTD *td_list_[2])
 {
@@ -109,13 +114,29 @@ void USBEndpoint::setState(USB_TYPE st)
         if ((*addr) && (type != INTERRUPT_ENDPOINT)) {
             this->ep_queue.put((uint8_t *)1);
         }
-        HAL_HCD_HC_Halt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
+        // Flush posted requests
+        USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS;
+        // Disable the channel
+        USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS | USB_OTG_HCCHAR_CHENA;
+        // <-- Notice the lack of error handling here - after testing a lot of 
+        //     combinations, it seems that the USB host controller doesn't work fully
+        //     according to the reference manual in this aspect, which might also
+        //     be the reason for lacking error handling in the ST USB LL
+
         HAL_HCD_DisableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
         *addr = 0;
 
     }
     if (st == USB_TYPE_ERROR) {
-        HAL_HCD_HC_Halt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
+        // Flush posted requests
+        USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS;
+        // Disable the channel
+        USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS | USB_OTG_HCCHAR_CHENA;
+        // <-- Notice the lack of error handling here - after testing a lot of 
+        //     combinations, it seems that the USB host controller doesn't work fully
+        //     according to the reference manual in this aspect, which might also
+        //     be the reason for lacking error handling in the ST USB LL
+
         HAL_HCD_DisableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
         uint8_t hcd_speed = HCD_SPEED_FULL;
         /* small speed device with hub not supported
@@ -124,6 +145,11 @@ void USBEndpoint::setState(USB_TYPE st)
         // Notice that dev->getAddress() must be used instead of device_address, because the latter will contain
         // incorrect values in certain cases
         HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, dev->getAddress(), hcd_speed,  type, size);
+        // HAL_HCD_HC_Init() doesn't fully enable the channel after disable above, so we do it here -->
+        USBx_HC(hced->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
+        USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+        // <--
+        state = USB_TYPE_IDLE;
     }
 }
 
