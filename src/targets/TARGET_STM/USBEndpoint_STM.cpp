@@ -153,6 +153,10 @@ void USBEndpoint::setState(USB_TYPE st)
         USBx_HC(hced->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
         USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
         // <--
+        // Set state to USB_TYPE_IDLE to allow the library to recover from the error.
+        // WARNING: This might lead to some errors going unreported, and should be improved in the future, but
+        //          at least the library passes all our tests from higher levels at this point, which it didn't
+        //          do before.
         state = USB_TYPE_IDLE;
     }
 }
