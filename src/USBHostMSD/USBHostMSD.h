@@ -75,7 +75,7 @@ protected:
 
 
 private:
-    USBHost * host;
+    USBHost * host = nullptr;
     USBDeviceConnected * dev;
     bool dev_connected;
     USBEndpoint * bulk_in;

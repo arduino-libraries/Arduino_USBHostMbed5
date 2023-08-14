@@ -187,6 +187,12 @@ int USBHostMSD::inquiry(uint8_t lun, uint8_t page_code)
 
 int USBHostMSD::checkResult(uint8_t res, USBEndpoint * ep)
 {
+    // Guard against host not being initialized
+    if (nullptr == host)
+    {
+        return -1;
+    }
+
     // if ep stalled: send clear feature
     if (res == USB_TYPE_STALL_ERROR) {
         res = host->controlWrite(   dev,
@@ -210,6 +216,12 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
 {
 
     int res = 0;
+
+    // Guard against host not being initialized
+    if (nullptr == host)
+    {
+        return -1;
+    }
 
     cbw.Signature = CBW_SIGNATURE;
     cbw.Tag = 0;
@@ -310,6 +322,13 @@ int USBHostMSD::dataTransfer(uint8_t * buf, uint32_t block, uint8_t nbBlock, int
 int USBHostMSD::getMaxLun()
 {
     uint8_t buf[1], res;
+
+    // Guard against host not being initialized
+    if (nullptr == host)
+    {
+        return -1;
+    }
+
     res = host->controlRead(    dev, USB_RECIPIENT_INTERFACE | USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS,
                                 0xfe, 0, msd_intf, buf, 1);
     USB_DBG("max lun: %d", buf[0]);
