@@ -20,6 +20,8 @@
 
 #include "USBHost/dbg.h"
 #include "USBHost/USBEndpoint.h"
+#include "USBHost/USBDeviceConnected.h"
+
 extern uint32_t HAL_HCD_HC_GetMaxPacket(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 extern uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 extern void HAL_HCD_DisableInt(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
@@ -115,13 +117,13 @@ void USBEndpoint::setState(USB_TYPE st)
     if (st == USB_TYPE_ERROR) {
         HAL_HCD_HC_Halt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
         HAL_HCD_DisableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
-
-    }
-    if (st == USB_TYPE_ERROR) {
         uint8_t hcd_speed = HCD_SPEED_FULL;
         /* small speed device with hub not supported
            if (this->speed) hcd_speed = HCD_SPEED_LOW;*/
-        HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, 0, hcd_speed,  type, size);
+
+        // Notice that dev->getAddress() must be used instead of device_address, because the latter will contain
+        // incorrect values in certain cases
+        HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, dev->getAddress(), hcd_speed,  type, size);
     }
 }
 
