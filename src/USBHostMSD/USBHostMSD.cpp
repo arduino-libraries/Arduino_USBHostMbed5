@@ -273,7 +273,7 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
                                     BO_MASS_STORAGE_RESET,
                                     0, msd_intf, NULL, 0);
 
-        // uninstall both endpoints
+        // unstall [sic!] both endpoints
         res = host->controlWrite(   dev,
                                     USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
                                     CLEAR_FEATURE,
