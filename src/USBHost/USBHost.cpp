@@ -1145,7 +1145,7 @@ USB_TYPE USBHost::generalTransfer(USBDeviceConnected * dev, USBEndpoint * ep, ui
         USB_DBG_TRANSFER("%s TRANSFER res: %s on ep: %p\r\n", type_str, ep->getStateString(), ep);
 
         if (res != USB_TYPE_IDLE) {
-            // Set state to USB_TYPE_IDLE to allow recover from the error, but return the error
+            // Set state to USB_TYPE_IDLE to allow recovery from the error, but return the error
             ep->setState(USB_TYPE_IDLE);
             return res;
         }
