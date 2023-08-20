@@ -93,7 +93,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
         if ((type == EP_TYPE_BULK) || (type == EP_TYPE_CTRL)) {
             switch (urb_state) {
                 case URB_DONE:
-#if defined(MAX_NYET_RETRY)
+#if defined(MAX_NOTREADY_RETRY)
                     td->retry = 0;
 #endif
                     if (td->size >  max_size) {
@@ -110,8 +110,8 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
                     /*  try again  */
                     /*  abritary limit , to avoid dead lock if other error than
                      *  slow response is  */
-#if defined(MAX_NYET_RETRY)
-                    if (td->retry < MAX_NYET_RETRY) {
+#if defined(MAX_NOTREADY_RETRY)
+                    if (td->retry < MAX_NOTREADY_RETRY) {
                         /*  increment retry counter */
                         td->retry++;
 #endif
@@ -119,9 +119,9 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
                         HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir, type, !td->setup, (uint8_t *) td->currBufPtr, length, 0);
                         HAL_HCD_EnableInt(hhcd, chnum);
                         return;
-#if defined(MAX_NYET_RETRY)
+#if defined(MAX_NOTREADY_RETRY)
                     } else {
-                        //USB_ERR("urb_state != URB_NOTREADY");
+                        // MAX_NOTREADY_RETRY reached, so stop trying to resend and instead wait for a timeout at a higher layer
                     }
 #endif
                     break;

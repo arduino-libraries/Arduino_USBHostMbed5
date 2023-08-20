@@ -38,7 +38,7 @@
 
 #define TOTAL_SIZE (HCCA_SIZE + (MAX_ENDPOINT * ED_SIZE) + (MAX_TD * TD_SIZE))
 
-#define MAX_NYET_RETRY      5
+#define MAX_NOTREADY_RETRY      5
 
 /* STM device FS have 11 channels (definition is for 60 channels) */
 static volatile  uint8_t usb_buf[TOTAL_SIZE];

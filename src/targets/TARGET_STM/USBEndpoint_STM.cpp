@@ -181,7 +181,7 @@ USB_TYPE USBEndpoint::queueTransfer()
     state = USB_TYPE_PROCESSING;
     /*  one request */
     td_current->nextTD = (hcTd *)0;
-#if defined(MAX_NYET_RETRY)
+#if defined(MAX_NOTREADY_RETRY)
     td_current->retry = 0;
 #endif
     td_current->setup = setup;
