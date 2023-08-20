@@ -87,7 +87,7 @@ uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd, uint8_t chnum)
 //  - URB_STALL    = a stall response from the device - but it is never handled by the library and will end up
 //                   as a timeout at a higher layer, because of an ep_queue.get() timeout, which will activate
 //                   error recovery indirectly
-//  - URB_DONE     = the transfer completed normally without errrors
+//  - URB_DONE     = the transfer completed normally without errors
 //  - URB_NOTREADY = a NAK, NYET, or not more than a couple of repeats of some of the errors that will
 //                   become URB_ERROR if they repeat several times in a row
 //
