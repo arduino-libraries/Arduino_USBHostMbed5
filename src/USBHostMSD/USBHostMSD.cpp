@@ -193,7 +193,8 @@ int USBHostMSD::checkResult(uint8_t res, USBEndpoint * ep)
         return -1;
     }
 
-    // if ep stalled: send clear feature
+    // Notice that USB_TYPE_STALL_ERROR is never actually set anywhere in the library for the ST target, because
+    // URB_STALL is never handled directly. Otherwise, this would be the code to unstall the EP.
     if (res == USB_TYPE_STALL_ERROR) {
         res = host->controlWrite(   dev,
                                     USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
@@ -285,7 +286,9 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
                                     BO_MASS_STORAGE_RESET,
                                     0, msd_intf, NULL, 0);
 
-        // unstall [sic!] both endpoints
+        // Unstall [sic!] both endpoints.
+        // Notice that this is the unstall that is required by the specification as part of clearing a Phase Error,
+        // _not_ the unstall for an ordinarily stalled EP!
         res = host->controlWrite(   dev,
                                     USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
                                     CLEAR_FEATURE,
