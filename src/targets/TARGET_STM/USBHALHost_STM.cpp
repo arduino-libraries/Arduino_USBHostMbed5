@@ -76,6 +76,21 @@ uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd, uint8_t chnum)
     return hhcd->hc[chnum].ep_type;
 }
 
+// The urb_state parameter can be one of the following according to the ST documentation, but the explanations
+// that follow are the result of an analysis of the ST HAL / LL source code, the Reference Manual for the
+// STM32H747 microcontroller, and the source code of this library:
+//
+//  - URB_ERROR    = various serious errors that may be hard or impossible to recover from without pulling
+//                   the thumb drive out and putting it back in again, but we will try
+//  - URB_IDLE     = set by a call to HAL_HCD_HC_SubmitRequest(), but never used by this library
+//  - URB_NYET     = never actually used by the ST HAL / LL at the time of writing, nor by this library
+//  - URB_STALL    = a stall response from the device - but it is never handled by the library and will end up
+//                   as a timeout at a higher layer, because of an ep_queue.get() timeout, which will activate
+//                   error recovery indirectly
+//  - URB_DONE     = the transfer completed normally without errors
+//  - URB_NOTREADY = a NAK, NYET, or not more than a couple of repeats of some of the errors that will
+//                   become URB_ERROR if they repeat several times in a row
+//
 void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum, HCD_URBStateTypeDef urb_state)
 {
     USBHALHost_Private_t *priv = (USBHALHost_Private_t *)(hhcd->pData);
@@ -93,7 +108,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
         if ((type == EP_TYPE_BULK) || (type == EP_TYPE_CTRL)) {
             switch (urb_state) {
                 case URB_DONE:
-#if defined(MAX_NYET_RETRY)
+#if defined(MAX_NOTREADY_RETRY)
                     td->retry = 0;
 #endif
                     if (td->size >  max_size) {
@@ -107,21 +122,18 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
                     }
                     break;
                 case  URB_NOTREADY:
-                    /*  try again  */
-                    /*  abritary limit , to avoid dead lock if other error than
-                     *  slow response is  */
-#if defined(MAX_NYET_RETRY)
-                    if (td->retry < MAX_NYET_RETRY) {
-                        /*  increment retry counter */
+#if defined(MAX_NOTREADY_RETRY)
+                    if (td->retry < MAX_NOTREADY_RETRY) {
                         td->retry++;
 #endif
+                        // Submit the same request again, because the device wasn't ready to accept the last one
                         length = td->size <= max_size ? td->size : max_size;
                         HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir, type, !td->setup, (uint8_t *) td->currBufPtr, length, 0);
                         HAL_HCD_EnableInt(hhcd, chnum);
                         return;
-#if defined(MAX_NYET_RETRY)
+#if defined(MAX_NOTREADY_RETRY)
                     } else {
-                        //USB_ERR("urb_state != URB_NOTREADY");
+                        // MAX_NOTREADY_RETRY reached, so stop trying to resend and instead wait for a timeout at a higher layer
                     }
 #endif
                     break;
@@ -138,6 +150,9 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
                 td->state = USB_TYPE_IDLE;
             }
             else if (urb_state == URB_ERROR) {
+                // While USB_TYPE_ERROR in the endpoint state is used to activate error recovery, this value is actually never used.
+                // Going here will lead to a timeout at a higher layer, because of ep_queue.get() timeout, which will activate error
+                // recovery indirectly.
                 td->state = USB_TYPE_ERROR;
             } else {
                 td->state = USB_TYPE_PROCESSING;

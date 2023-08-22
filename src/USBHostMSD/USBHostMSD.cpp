@@ -187,7 +187,14 @@ int USBHostMSD::inquiry(uint8_t lun, uint8_t page_code)
 
 int USBHostMSD::checkResult(uint8_t res, USBEndpoint * ep)
 {
-    // if ep stalled: send clear feature
+    // Guard against host not being initialized
+    if (nullptr == host)
+    {
+        return -1;
+    }
+
+    // Notice that USB_TYPE_STALL_ERROR is never actually set anywhere in the library for the ST target, because
+    // URB_STALL is never handled directly. Otherwise, this would be the code to unstall the EP.
     if (res == USB_TYPE_STALL_ERROR) {
         res = host->controlWrite(   dev,
                                     USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
@@ -210,6 +217,12 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
 {
 
     int res = 0;
+
+    // Guard against host not being initialized
+    if (nullptr == host)
+    {
+        return -1;
+    }
 
     cbw.Signature = CBW_SIGNATURE;
     cbw.Tag = 0;
@@ -273,7 +286,9 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
                                     BO_MASS_STORAGE_RESET,
                                     0, msd_intf, NULL, 0);
 
-        // uninstall both endpoints
+        // Unstall [sic!] both endpoints.
+        // Notice that this is the unstall that is required by the specification as part of clearing a Phase Error,
+        // _not_ the unstall for an ordinarily stalled EP!
         res = host->controlWrite(   dev,
                                     USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
                                     CLEAR_FEATURE,
@@ -310,6 +325,13 @@ int USBHostMSD::dataTransfer(uint8_t * buf, uint32_t block, uint8_t nbBlock, int
 int USBHostMSD::getMaxLun()
 {
     uint8_t buf[1], res;
+
+    // Guard against host not being initialized
+    if (nullptr == host)
+    {
+        return -1;
+    }
+
     res = host->controlRead(    dev, USB_RECIPIENT_INTERFACE | USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS,
                                 0xfe, 0, msd_intf, buf, 1);
     USB_DBG("max lun: %d", buf[0]);
