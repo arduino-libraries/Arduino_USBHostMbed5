@@ -697,11 +697,20 @@ bool USBHost::addEndpoint(USBDeviceConnected * dev, uint8_t intf_nb, USBEndpoint
         default:
             return false;
     }
-
+#else
+    // The code that follows this check shouldn't be executed for a control endpoint
+    if (CONTROL_ENDPOINT == (ep->getType()))
+    {
+        return true;
+    }
 #endif
     ep->dev = dev;
-    dev->addEndpoint(intf_nb, ep);
-
+    // This check might not be necessary when the control endpoint check is added above, but
+    // is included just in case
+    if (nullptr != dev)
+    {
+        dev->addEndpoint(intf_nb, ep);
+    }
     return true;
 }
 
