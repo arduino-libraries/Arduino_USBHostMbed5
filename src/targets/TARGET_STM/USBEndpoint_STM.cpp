@@ -146,13 +146,17 @@ void USBEndpoint::setState(USB_TYPE st)
         /* small speed device with hub not supported
            if (this->speed) hcd_speed = HCD_SPEED_LOW;*/
 
-        // Notice that dev->getAddress() must be used instead of device_address, because the latter will contain
-        // incorrect values in certain cases
-        HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, dev->getAddress(), hcd_speed,  type, size);
-        // HAL_HCD_HC_Init() doesn't fully enable the channel after disable above, so we do it here -->
-        USBx_HC(hced->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
-        USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
-        // <--
+        // If the device seems to be gone, there is no use trying to enable the channel again
+        if (nullptr != dev)
+        {
+            // Notice that dev->getAddress() must be used instead of device_address, because the latter will contain
+            // incorrect values in certain cases
+            HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, dev->getAddress(), hcd_speed,  type, size);
+            // HAL_HCD_HC_Init() doesn't fully enable the channel after disable above, so we do it here -->
+            USBx_HC(hced->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
+            USBx_HC(hced->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+            // <--
+        }
     }
 }
 
