@@ -697,11 +697,12 @@ bool USBHost::addEndpoint(USBDeviceConnected * dev, uint8_t intf_nb, USBEndpoint
         default:
             return false;
     }
-
 #endif
     ep->dev = dev;
-    dev->addEndpoint(intf_nb, ep);
-
+    if (nullptr != dev)
+    {
+        dev->addEndpoint(intf_nb, ep);
+    }
     return true;
 }
 
