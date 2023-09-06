@@ -30,6 +30,8 @@ USBHost * USBHost::instHost = NULL;
 
 #define MIN(a, b) ((a > b) ? b : a)
 
+extern void (*mount_fnc)(void);
+
 /**
 * How interrupts are processed:
 *    - new device connected:
@@ -184,6 +186,11 @@ void USBHost::usb_process()
                         }
 
                         USB_INFO("New device connected: %p [hub: %d - port: %d]", &devices[i], usb_msg->hub, usb_msg->port);
+
+                        // Call the device connected callback if registered
+                        if (nullptr != mount_fnc) {
+                            mount_fnc();
+                        }
 
 #if MAX_HUB_NB
                         if (buf[4] == HUB_CLASS) {

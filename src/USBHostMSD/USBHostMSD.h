@@ -64,7 +64,7 @@ public:
     virtual mbed::bd_size_t get_erase_size() const;
     virtual mbed::bd_size_t size() const;
     virtual const char *get_type() const;
-
+    bool attach_detected_callback(void (*cbk)());
 
 
 protected:
