@@ -28,6 +28,8 @@
 #define GET_MAX_LUN             (0xFE)
 #define BO_MASS_STORAGE_RESET   (0xFF)
 
+void (*mount_fnc)(void) = nullptr;
+
 USBHostMSD::USBHostMSD()
 {
     /*  register an object in FAT */
@@ -59,10 +61,10 @@ bool USBHostMSD::connected()
 
 bool USBHostMSD::connect()
 {
-
     if (dev_connected) {
         return true;
     }
+
     host = USBHost::getHostInst();
 
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
@@ -90,6 +92,7 @@ bool USBHostMSD::connect()
                 host->registerDriver(dev, msd_intf, this, &USBHostMSD::init_usb);
 
                 dev_connected = true;
+
                 return true;
             }
         } //if()
@@ -430,4 +433,13 @@ const char *USBHostMSD::get_type() const
 {
     return "USBMSD";
 }
+
+// The callback will only be called if connect() has been used at least once before,
+// because of an older bugfix (commit 72d0aa6), but this is still useful - see the
+// implementation in Arduino_POSIXStorage for an example
+bool USBHostMSD::attach_detected_callback(void (*cbk)()) {
+    mount_fnc = cbk;
+    return true;
+}
+
 #endif
