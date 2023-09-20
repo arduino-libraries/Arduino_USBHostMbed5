@@ -257,6 +257,7 @@ void USBHost::usb_process()
 
                     } while(0);
 
+                    // Call the device disconnected callback if registered
                     if (nullptr != unmount_fnc) {
                         unmount_fnc();
                     }
