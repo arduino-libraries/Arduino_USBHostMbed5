@@ -31,6 +31,7 @@ USBHost * USBHost::instHost = NULL;
 #define MIN(a, b) ((a > b) ? b : a)
 
 extern void (*mount_fnc)(void);
+extern void (*unmount_fnc)(void);
 
 /**
 * How interrupts are processed:
@@ -255,6 +256,10 @@ void USBHost::usb_process()
                         }
 
                     } while(0);
+
+                    if (nullptr != unmount_fnc) {
+                        unmount_fnc();
+                    }
 
                     break;
 

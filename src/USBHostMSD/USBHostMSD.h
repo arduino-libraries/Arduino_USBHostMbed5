@@ -65,7 +65,7 @@ public:
     virtual mbed::bd_size_t size() const;
     virtual const char *get_type() const;
     bool attach_detected_callback(void (*cbk)());
-
+    bool attach_removed_callback(void (*cbk)());
 
 protected:
     //From IUSBEnumerator

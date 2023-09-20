@@ -29,6 +29,7 @@
 #define BO_MASS_STORAGE_RESET   (0xFF)
 
 void (*mount_fnc)(void) = nullptr;
+void (*unmount_fnc)(void) = nullptr;
 
 USBHostMSD::USBHostMSD()
 {
@@ -439,6 +440,11 @@ const char *USBHostMSD::get_type() const
 // implementation in Arduino_POSIXStorage for an example
 bool USBHostMSD::attach_detected_callback(void (*cbk)()) {
     mount_fnc = cbk;
+    return true;
+}
+
+bool USBHostMSD::attach_removed_callback(void (*cbk)()) {
+    unmount_fnc = cbk;
     return true;
 }
 
