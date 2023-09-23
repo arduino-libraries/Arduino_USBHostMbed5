@@ -23,10 +23,8 @@ mbed::DigitalOut otg(PB_8, 1);
 void setup() {
   Serial.begin(115200);
   while (!Serial);
-  msd.connect();
-
-  while (!msd.connected()) {
-    //while (!port.connected()) {
+  
+  while (!msd.connect()) {
     delay(1000);
   }
 
