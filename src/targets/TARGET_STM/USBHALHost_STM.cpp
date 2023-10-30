@@ -139,8 +139,8 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
 #endif
                     break;
             }
-        }
 #endif
+        }
         if ((type == EP_TYPE_INTR)) {
             /*  reply a packet of length NULL, this will be analyze in call back
              *  for mouse or hub */

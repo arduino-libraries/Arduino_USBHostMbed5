@@ -18,10 +18,10 @@
 #define USB_DEBUG_H
 
 //Debug is disabled by default
-#define DEBUG 0 /*INFO,ERR,WARN*/
-#define DEBUG_TRANSFER 0
-#define DEBUG_EP_STATE 0
-#define DEBUG_EVENT 0
+#define DEBUG 4 /*INFO,ERR,WARN*/
+#define DEBUG_TRANSFER 4
+#define DEBUG_EP_STATE 4
+#define DEBUG_EVENT 4
 
 #if (DEBUG > 3)
 #define USB_DBG(x, ...) if (rtos::ThisThread::get_id() != 0) { printf("[USB_DBG: %s:%d]" x "\r\n", __FILE__, __LINE__, ##__VA_ARGS__); }
