@@ -98,7 +98,9 @@ void USBHostMIDI::rxHandler() {
                     // length shortage, ignored.
                     break;
                 }
-
+#if ARC_USB_FULL_SIZE
+				USB_INFO("MIDI MESSAGE %x, %x, %x, %x\n", buf[i], buf[i+1], buf[i+2], buf[i+3]);
+#else
                 // read each four bytes
                 midi = &buf[i];
                 // process MIDI message
@@ -189,6 +191,7 @@ void USBHostMIDI::rxHandler() {
                         singleByte(midi[1]);
                         break;
                 }
+#endif
             }
             
             // read another message
