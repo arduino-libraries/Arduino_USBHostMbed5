@@ -105,8 +105,8 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
     if ((addr != 0)) {
         HCTD *td = (HCTD *)addr;
 
-        if ((type == EP_TYPE_BULK) || (type == EP_TYPE_CTRL)) {
 #if !ARC_USB_FULL_SIZE
+        if ((type == EP_TYPE_BULK) || (type == EP_TYPE_CTRL)) {
             switch (urb_state) {
                 case URB_DONE:
 #if defined(MAX_NOTREADY_RETRY)
@@ -139,8 +139,8 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
 #endif
                     break;
             }
-#endif
         }
+#endif
         if ((type == EP_TYPE_INTR)) {
             /*  reply a packet of length NULL, this will be analyze in call back
              *  for mouse or hub */
