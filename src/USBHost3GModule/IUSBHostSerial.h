@@ -74,7 +74,7 @@ public:
     *
     * @returns the number of bytes available
     */
-    virtual int writeable() = 0;
+    virtual int writable() = 0;
 
     /**
      *  Attach a handler to call when a packet is received / when a packet has been transmitted.
@@ -84,7 +84,7 @@ public:
     virtual void attach(IUSBHostSerialListener* pListener) = 0;
 
     /**
-     * Enable or disable readable/writeable callbacks
+     * Enable or disable readable/writable callbacks
      */
     virtual void setupIrq(bool en, IrqType irq = RxIrq) = 0;
 

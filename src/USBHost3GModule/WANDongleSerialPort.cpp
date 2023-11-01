@@ -187,7 +187,7 @@ int WANDongleSerialPort::readable()
   return res;
 }
 
-int WANDongleSerialPort::writeable()
+int WANDongleSerialPort::writable()
 {
   tx_mtx.lock();
   if (lock_tx)
@@ -246,7 +246,7 @@ void WANDongleSerialPort::setupIrq(bool en, IrqType irq /*= RxIrq*/)
     {
       cb_tx_pending = false;
       tx_mtx.unlock();
-      listener->writeable(); //Process the interrupt that was raised
+      listener->writable(); //Process the interrupt that was raised
     }
     else
     {
@@ -321,7 +321,7 @@ void WANDongleSerialPort::txHandler()
     if(cb_tx_en)
     {
       tx_mtx.unlock();
-      listener->writeable(); //Call handler from the IRQ context
+      listener->writable(); //Call handler from the IRQ context
       //writePacket() should be called by the handler subsequently once the buffer has been filled
     }
     else

@@ -29,7 +29,7 @@ class IUSBHostSerialListener
 {
 public:
   virtual void readable() = 0; //Called when new data is available
-  virtual void writeable() = 0; //Called when new space is available
+  virtual void writable() = 0; //Called when new space is available
 };
 
 #endif /* USBHOST_3GMODULE */
