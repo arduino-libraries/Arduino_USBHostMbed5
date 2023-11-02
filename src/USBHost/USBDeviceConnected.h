@@ -65,7 +65,7 @@ public:
     * @param intf_nb the interface on which to lookup the USBEndpoint
     * @param type type of the USBEndpoint looked for
     * @param dir direction of the USBEndpoint looked for
-    * @param index the index of the USBEndpoint whitin the interface
+    * @param index the index of the USBEndpoint within the interface
     * @returns pointer on the USBEndpoint if found, NULL otherwise
     */
     USBEndpoint * getEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir, uint8_t index = 0);
