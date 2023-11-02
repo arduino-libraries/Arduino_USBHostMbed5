@@ -181,7 +181,7 @@ void USBHost::usb_process()
 
                             if (res == USB_TYPE_OK) {
                               
-
+                                // Call the device connected callback if registered
                                 if (nullptr != mount_fnc) {
                                     mount_fnc();
                                 }
@@ -194,8 +194,6 @@ void USBHost::usb_process()
 
                         USB_INFO("New device connected: %p [hub: %d - port: %d]", &devices[i], usb_msg->hub, usb_msg->port);
 
-                        // Call the device connected callback if registered
-                      
 
 #if MAX_HUB_NB
                         if (buf[4] == HUB_CLASS) {
