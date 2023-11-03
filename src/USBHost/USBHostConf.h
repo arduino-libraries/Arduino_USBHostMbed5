@@ -17,6 +17,7 @@
 #ifndef USBHOST_CONF_H
 #define USBHOST_CONF_H
 
+#include "mbed_config.h"
 #include "Callback.h"
 #include "Arduino.h"
 

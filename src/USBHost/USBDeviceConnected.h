@@ -21,6 +21,7 @@
 #include "USBHost/USBEndpoint.h"
 #include "USBHost/USBHostConf.h"
 #include "rtos.h"
+#include "mbed_config.h"
 #include "Callback.h"
 
 class USBHostHub;

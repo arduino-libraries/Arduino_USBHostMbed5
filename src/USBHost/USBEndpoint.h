@@ -17,6 +17,7 @@
 #ifndef USBENDPOINT_H
 #define USBENDPOINT_H
 
+#include "mbed_config.h"
 #include "Callback.h"
 #include "USBHostTypes.h"
 #include "rtos.h"
