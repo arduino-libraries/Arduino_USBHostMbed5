@@ -17,8 +17,6 @@
 #ifndef USBENDPOINT_H
 #define USBENDPOINT_H
 
-#undef MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL
-#define MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL  0
 #include "Callback.h"
 #include "USBHostTypes.h"
 #include "rtos.h"

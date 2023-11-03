@@ -17,8 +17,6 @@
 #ifndef USBHOST_CONF_H
 #define USBHOST_CONF_H
 
-#undef MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL
-#define MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL  0
 #include "Callback.h"
 #include "Arduino.h"
 
