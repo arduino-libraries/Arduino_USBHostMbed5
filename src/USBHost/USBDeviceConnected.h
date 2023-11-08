@@ -21,8 +21,7 @@
 #include "USBHost/USBEndpoint.h"
 #include "USBHost/USBHostConf.h"
 #include "rtos.h"
-#undef MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL
-#define MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL  0
+#include "mbed_config.h"
 #include "Callback.h"
 
 class USBHostHub;
