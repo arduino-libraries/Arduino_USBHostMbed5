@@ -105,7 +105,51 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
     if ((addr != 0)) {
         HCTD *td = (HCTD *)addr;
 
-#if !ARC_USB_FULL_SIZE
+void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum, HCD_URBStateTypeDef urb_state)
+{
+    USBHALHost_Private_t *priv = (USBHALHost_Private_t *)(hhcd->pData);
+    USBHALHost *obj = priv->inst;
+    void (USBHALHost::*func)(volatile uint32_t addr) = priv->transferCompleted;
+
+    uint32_t addr = priv->addr[chnum];
+    uint32_t max_size = HAL_HCD_HC_GetMaxPacket(hhcd, chnum);
+    uint32_t type = HAL_HCD_HC_GetType(hhcd, chnum);
+    uint32_t dir = HAL_HCD_HC_GetDirection(hhcd, chnum);
+    
+
+    uint32_t length;
+    if ((addr != 0)) {
+        HCTD *td = (HCTD *)addr;
+		    LogicUint7(0x70 + urb_state);
+		    LogicUint7(0x50 + chnum);
+        digitalWrite(PA_7, HIGH);
+
+#if ARC_USB_FULL_SIZE
+        constexpr uint32_t uRetryCount = 10000/20; // (TODO: should be done with timer, investigate)
+        if ((type == EP_TYPE_BULK) || (type == EP_TYPE_CTRL)) 
+        {
+          td->retry++;
+
+          if(urb_state == URB_NOTREADY)
+          {
+            volatile uint32_t transferred = HAL_HCD_HC_GetXferCount(hhcd, chnum);
+
+            if((td->retry > uRetryCount) || (td->size==0))
+            {
+              // Submit the same request again, because the device wasn't ready to accept the last one
+              // we need to be aware of any data that has already been transferred as it wont be again by the look of it.
+              // Also only do this once until if (td->state == USB_TYPE_IDLE) resets it below
+              td->currBufPtr += transferred;
+              td->size -= transferred;
+              td->retry = 0;
+              length = td->size;
+
+              HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir, type, !td->setup, (uint8_t *) td->currBufPtr, length, 0);
+              HAL_HCD_EnableInt(hhcd, chnum);
+            }
+          }
+        }
+#else
         if ((type == EP_TYPE_BULK) || (type == EP_TYPE_CTRL)) {
             switch (urb_state) {
                 case URB_DONE:
@@ -161,6 +205,9 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
             }
         }
         if (td->state == USB_TYPE_IDLE) {
+#if ARC_USB_FULL_SIZE
+            td->retry = 0;
+#endif
             td->currBufPtr += HAL_HCD_HC_GetXferCount(hhcd, chnum);
             (obj->*func)(addr);
         }
