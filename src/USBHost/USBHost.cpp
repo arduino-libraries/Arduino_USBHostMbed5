@@ -1017,6 +1017,10 @@ void USBHost::parseConfDescr(USBDeviceConnected * dev, uint8_t * conf_descr, uin
 
     while (index < len) {
         len_desc = conf_descr[index];
+        if (len_desc == 0) {
+            index++;
+            continue;
+        }
         id = conf_descr[index+1];
         switch (id) {
             case CONFIGURATION_DESCRIPTOR:
