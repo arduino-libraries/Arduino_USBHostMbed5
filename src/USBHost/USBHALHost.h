@@ -34,6 +34,12 @@ protected:
     */
     USBHALHost();
 
+#if ARC_TICKER_BASED
+    mbed::Ticker ms_ticker;
+
+    void tickerCallback(void);
+#endif
+
     /**
     * Initialize host controller. Enable USB interrupts. This part is not in the constructor because,
     * this function calls a virtual method if a device is already connected
