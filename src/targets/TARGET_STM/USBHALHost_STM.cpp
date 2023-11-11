@@ -123,7 +123,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChann
             pTransferDescriptor->retry = 0xffffffff; // Disable retries
           else
           {
-            // if the retry count is 0 then initialise downward counting retry
+            // if the retry count is 0 then initialize downward counting retry
             // otherwise decrement retry count
             if(pTransferDescriptor->retry == 0)
               pTransferDescriptor->retry = uRetryCount;
@@ -134,7 +134,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChann
           // If our retry count has got down to 0 or we are an Ack then submit request again
           if((pTransferDescriptor->retry == 0) || (pTransferDescriptor->size==0))
           {
-            //  initialise downward counting retry
+            //  initialize downward counting retry
             pTransferDescriptor->retry = uRetryCount;
 
             // resubmit the request.
