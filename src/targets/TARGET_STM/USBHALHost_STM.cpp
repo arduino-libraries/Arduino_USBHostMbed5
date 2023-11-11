@@ -188,20 +188,6 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
     uint32_t max_size = HAL_HCD_HC_GetMaxPacket(hhcd, chnum);
     uint32_t type = HAL_HCD_HC_GetType(hhcd, chnum);
     uint32_t dir = HAL_HCD_HC_GetDirection(hhcd, chnum);
-    uint32_t length;
-    if ((addr != 0)) {
-        HCTD *td = (HCTD *)addr;
-
-void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum, HCD_URBStateTypeDef urb_state)
-{
-    USBHALHost_Private_t *priv = (USBHALHost_Private_t *)(hhcd->pData);
-    USBHALHost *obj = priv->inst;
-    void (USBHALHost::*func)(volatile uint32_t addr) = priv->transferCompleted;
-
-    uint32_t addr = priv->addr[chnum];
-    uint32_t max_size = HAL_HCD_HC_GetMaxPacket(hhcd, chnum);
-    uint32_t type = HAL_HCD_HC_GetType(hhcd, chnum);
-    uint32_t dir = HAL_HCD_HC_GetDirection(hhcd, chnum);
     
 
     uint32_t length;

@@ -24,6 +24,7 @@
 #include "USBHost/USBHost.h"
 #include "Stream.h"
 #include "MtxCircBuffer.h"
+#include "mbed_config.h"
 #include "Callback.h"
 
 /**

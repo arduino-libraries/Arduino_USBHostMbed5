@@ -17,11 +17,7 @@
 #ifndef USBHOST_CONF_H
 #define USBHOST_CONF_H
 
-#if ARC_USB_FULL_SIZE
-#undef MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL
-#define MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL  0
-#endif 
-
+#include "mbed_config.h"
 #include "Callback.h"
 #include "Arduino.h"
 

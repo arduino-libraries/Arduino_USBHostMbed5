@@ -180,11 +180,11 @@ void USBHost::usb_process()
                             res = getDeviceDescriptor(&devices[i], buf, 8);
 
                             if (res == USB_TYPE_OK) {
+                              
                                 // Call the device connected callback if registered
                                 if (nullptr != mount_fnc) {
                                     mount_fnc();
                                 }
-                                
                                 break;
                             }
 
