@@ -91,6 +91,98 @@ uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd, uint8_t chnum)
 //  - URB_NOTREADY = a NAK, NYET, or not more than a couple of repeats of some of the errors that will
 //                   become URB_ERROR if they repeat several times in a row
 //
+#if ARC_USB_FULL_SIZE
+void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChannel, HCD_URBStateTypeDef urbState)
+{
+  USBHALHost_Private_t *pPriv = (USBHALHost_Private_t *)(pHcd->pData);
+
+  HCTD *pTransferDescriptor = (HCTD *)pPriv->addr[uChannel];
+
+  
+
+  if (pTransferDescriptor) 
+  {
+    constexpr uint32_t uRetryCount = 10; 
+
+    uint32_t endpointType = pHcd->hc[uChannel].ep_type;
+
+    if ((endpointType == EP_TYPE_INTR)) 
+    {
+      // Disable the channel interupt and retransfer below
+      pTransferDescriptor->state = USB_TYPE_IDLE ;
+      HAL_HCD_DisableInt(pHcd, uChannel);
+    } 
+    else if ((endpointType == EP_TYPE_BULK) || (endpointType == EP_TYPE_CTRL)) 
+    {
+      switch(urbState)
+      {
+        case URB_NOTREADY:
+        {
+          // If we have transfered any data then disable retries
+          if(pHcd->hc[uChannel].xfer_count > 0)
+            pTransferDescriptor->retry = 0xffffffff; // Disable retries
+          else
+          {
+            // if the retry count is 0 then initialise downward counting retry
+            // otherwise decrement retry count
+            if(pTransferDescriptor->retry == 0)
+              pTransferDescriptor->retry = uRetryCount;
+            else
+              pTransferDescriptor->retry--;
+          }
+
+          // If our retry count has got down to 0 or we are an Ack then submit request again
+          if((pTransferDescriptor->retry == 0) || (pTransferDescriptor->size==0))
+          {
+            //  initialise downward counting retry
+            pTransferDescriptor->retry = uRetryCount;
+
+            // resubmit the request.
+            HAL_HCD_HC_SubmitRequest(pHcd, uChannel, pHcd->hc[uChannel].ep_is_in, endpointType, !pTransferDescriptor->setup, (uint8_t *) pTransferDescriptor->currBufPtr, pTransferDescriptor->size, 0);
+            HAL_HCD_EnableInt(pHcd, uChannel);
+          }
+        }
+        break;
+
+        case URB_DONE:
+        {
+          // this will be handled below for USB_TYPE_IDLE
+          pTransferDescriptor->state = USB_TYPE_IDLE;
+        }
+        break;
+
+        case URB_ERROR:
+        {
+            // While USB_TYPE_ERROR in the endpoint state is used to activate error recovery, this value is actually never used.
+            // Going here will lead to a timeout at a higher layer, because of ep_queue.get() timeout, which will activate error
+            // recovery indirectly.
+            pTransferDescriptor->state = USB_TYPE_ERROR;
+        } 
+        break;
+
+        default:
+        {
+            pTransferDescriptor->state = USB_TYPE_PROCESSING;
+        }
+        break;
+      }
+    }
+
+    if (pTransferDescriptor->state == USB_TYPE_IDLE) 
+    {
+        // Disable retrues
+        pTransferDescriptor->retry = 0xffffffff; // Disable retries
+
+        // Update transfer descriptor buffer pointer
+        pTransferDescriptor->currBufPtr += HAL_HCD_HC_GetXferCount(pHcd, uChannel);
+
+        // Call transferCompleted on correct object
+        void (USBHALHost::*func)(volatile uint32_t addr) = pPriv->transferCompleted;
+        (pPriv->inst->*func)(reinterpret_cast<std::uintptr_t>(pTransferDescriptor));
+    }
+  }
+}
+#else
 void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum, HCD_URBStateTypeDef urb_state)
 {
     USBHALHost_Private_t *priv = (USBHALHost_Private_t *)(hhcd->pData);
@@ -168,6 +260,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
         }
     }
 }
+#endif
 
 USBHALHost *USBHALHost::instHost;
 
@@ -348,6 +441,41 @@ void USBHALHost::_usbisr(void)
 
 void USBHALHost::UsbIrqhandler()
 {
-    HAL_HCD_IRQHandler((HCD_HandleTypeDef *)usb_hcca);
+#if ARC_USB_FULL_SIZE
+  // fix from Lix Paulian : https://community.st.com/t5/stm32-mcus-products/stm32f4-stm32f7-usb-host-core-interrupt-flood/td-p/436225/page/4
+
+  // Enable USB_OTG_HCINT_NAK interupts for CTRL and BULK on USB_OTG_GINTSTS_SOF (1ms)
+  uint32_t ch_num;
+  HCD_HandleTypeDef* hhcd = (HCD_HandleTypeDef *)usb_hcca;
+
+  if (__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_SOF) && hhcd->Init.dma_enable == 0)
+  {
+    for (ch_num = 0; ch_num < hhcd->Init.Host_channels; ch_num++)
+    {
+      // workaround the interrupts flood issue: re-enable NAK interrupt
+      USBx_HC(ch_num)->HCINTMSK |= USB_OTG_HCINT_NAK;
+    }
+  }
+ 
+  HAL_HCD_IRQHandler((HCD_HandleTypeDef *)usb_hcca);
+
+  // Disable USB_OTG_HCINT_NAK interupts for CTRL and BULK on USB_OTG_GINTSTS_HCINT
+  if (__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_HCINT) && hhcd->Init.dma_enable == 0)
+  {
+    for (ch_num = 0; ch_num < hhcd->Init.Host_channels; ch_num++)
+    {
+      if (USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_NAK)
+      {
+        if ((hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL) || (hhcd->hc[ch_num].ep_type == EP_TYPE_BULK))
+        {
+          // workaround the interrupts flood issue: disable NAK interrupt
+          USBx_HC(ch_num)->HCINTMSK &= ~USB_OTG_HCINT_NAK;
+        }
+      }
+    }
+  }
+#else
+  HAL_HCD_IRQHandler((HCD_HandleTypeDef *)usb_hcca);
+#endif
 }
 #endif

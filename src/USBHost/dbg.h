@@ -18,7 +18,7 @@
 #define USB_DEBUG_H
 
 //Debug is disabled by default
-#define DEBUG 0 /*INFO,ERR,WARN*/
+#define DEBUG 4 /*INFO,ERR,WARN*/
 #define DEBUG_TRANSFER 0
 #define DEBUG_EP_STATE 0
 #define DEBUG_EVENT 0

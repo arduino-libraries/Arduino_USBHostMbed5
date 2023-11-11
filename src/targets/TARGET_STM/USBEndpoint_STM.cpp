@@ -178,7 +178,12 @@ USB_TYPE USBEndpoint::queueTransfer()
     }
     ep_queue.get(0);
     MBED_ASSERT(*addr == 0);
+#if ARC_USB_FULL_SIZE
+	transfer_len =   td_current->size;
+#else
     transfer_len =   td_current->size <= max_size ? td_current->size : max_size;
+#endif
+
     buf_start = (uint8_t *)td_current->currBufPtr;
 
     //Now add this free TD at this end of the queue
