@@ -118,7 +118,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChann
       {
         case URB_NOTREADY:
         {
-          // If we have transfered any data then disable retries
+          // If we have transferred any data then disable retries
           if(pHcd->hc[uChannel].xfer_count > 0)
             pTransferDescriptor->retry = 0xffffffff; // Disable retries
           else
