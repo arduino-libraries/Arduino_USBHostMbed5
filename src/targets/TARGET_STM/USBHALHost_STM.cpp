@@ -108,7 +108,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChann
 
     if ((endpointType == EP_TYPE_INTR)) 
     {
-      // Disable the channel interupt and retransfer below
+      // Disable the channel interrupt and retransfer below
       pTransferDescriptor->state = USB_TYPE_IDLE ;
       HAL_HCD_DisableInt(pHcd, uChannel);
     } 
@@ -444,7 +444,7 @@ void USBHALHost::UsbIrqhandler()
 #if ARC_USB_FULL_SIZE
   // fix from Lix Paulian : https://community.st.com/t5/stm32-mcus-products/stm32f4-stm32f7-usb-host-core-interrupt-flood/td-p/436225/page/4
 
-  // Enable USB_OTG_HCINT_NAK interupts for CTRL and BULK on USB_OTG_GINTSTS_SOF (1ms)
+  // Enable USB_OTG_HCINT_NAK interrupts for CTRL and BULK on USB_OTG_GINTSTS_SOF (1ms)
   uint32_t ch_num;
   HCD_HandleTypeDef* hhcd = (HCD_HandleTypeDef *)usb_hcca;
 
@@ -459,7 +459,7 @@ void USBHALHost::UsbIrqhandler()
  
   HAL_HCD_IRQHandler((HCD_HandleTypeDef *)usb_hcca);
 
-  // Disable USB_OTG_HCINT_NAK interupts for CTRL and BULK on USB_OTG_GINTSTS_HCINT
+  // Disable USB_OTG_HCINT_NAK interrupts for CTRL and BULK on USB_OTG_GINTSTS_HCINT
   if (__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_HCINT) && hhcd->Init.dma_enable == 0)
   {
     for (ch_num = 0; ch_num < hhcd->Init.Host_channels; ch_num++)
