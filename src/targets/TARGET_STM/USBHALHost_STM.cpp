@@ -171,7 +171,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChann
     if (pTransferDescriptor->state == USB_TYPE_IDLE) 
     {
         // Disable retrues
-        pTransferDescriptor->retry = 0xffffffff; // Disable retries
+        pTransferDescriptor->retry = 0;
 
         // Update transfer descriptor buffer pointer
         pTransferDescriptor->currBufPtr += HAL_HCD_HC_GetXferCount(pHcd, uChannel);
