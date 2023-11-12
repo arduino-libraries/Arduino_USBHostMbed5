@@ -1066,6 +1066,8 @@ void USBHost::parseConfDescr(USBDeviceConnected * dev, uint8_t * conf_descr, uin
                 lenReportDescr = conf_descr[index + 7] | (conf_descr[index + 8] << 8);
                 break;
             default:
+                if(parsing_intf)
+                  pEnumerator->parseConfigEntry(id, conf_descr[index+2],  &conf_descr[index+3], len_desc-3);
                 break;
         }
         index += len_desc;
