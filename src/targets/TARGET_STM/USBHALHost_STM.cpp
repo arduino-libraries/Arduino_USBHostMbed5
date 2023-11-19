@@ -456,7 +456,8 @@ void USBHALHost::UsbIrqhandler()
       USBx_HC(ch_num)->HCINTMSK |= USB_OTG_HCINT_NAK;
 
       // workaround the interrupts flood issue: re-enable CHH interrupt
-      USBx_HC(ch_num)->HCINTMSK |= USB_OTG_HCINT_CHH;
+      if(hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL)
+        USBx_HC(ch_num)->HCINTMSK |= USB_OTG_HCINT_CHH;
     }
   }
 
@@ -467,6 +468,7 @@ void USBHALHost::UsbIrqhandler()
   {
     for (ch_num = 0; ch_num < hhcd->Init.Host_channels; ch_num++)
     {
+      LogicUint7(USBx_HC(ch_num)->HCINT);
       if ((hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL) || (hhcd->hc[ch_num].ep_type == EP_TYPE_BULK))
       {
         if (USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_NAK)
@@ -475,7 +477,7 @@ void USBHALHost::UsbIrqhandler()
           USBx_HC(ch_num)->HCINTMSK &= ~USB_OTG_HCINT_NAK;
         }
 
-        if (USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_CHH)
+        if ((USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_CHH) && (hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL))
         {
           // workaround the interrupts flood issue: disable CHH interrupt
           USBx_HC(ch_num)->HCINTMSK &= ~USB_OTG_HCINT_CHH;
