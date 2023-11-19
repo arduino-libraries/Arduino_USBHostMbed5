@@ -439,12 +439,12 @@ void USBHALHost::_usbisr(void)
     }
 }
 
+
 void USBHALHost::UsbIrqhandler()
 {
 #if ARC_USB_FULL_SIZE
   // fix from Lix Paulian : https://community.st.com/t5/stm32-mcus-products/stm32f4-stm32f7-usb-host-core-interrupt-flood/td-p/436225/page/4
-
-  // Enable USB_OTG_HCINT_NAK interrupts for CTRL and BULK on USB_OTG_GINTSTS_SOF (1ms)
+  // Change to also stop flooding of channel halt interrupt
   uint32_t ch_num;
   HCD_HandleTypeDef* hhcd = (HCD_HandleTypeDef *)usb_hcca;
 
@@ -454,24 +454,33 @@ void USBHALHost::UsbIrqhandler()
     {
       // workaround the interrupts flood issue: re-enable NAK interrupt
       USBx_HC(ch_num)->HCINTMSK |= USB_OTG_HCINT_NAK;
+
+      // workaround the interrupts flood issue: re-enable CHH interrupt
+      USBx_HC(ch_num)->HCINTMSK |= USB_OTG_HCINT_CHH;
     }
   }
+
  
   HAL_HCD_IRQHandler((HCD_HandleTypeDef *)usb_hcca);
 
-  // Disable USB_OTG_HCINT_NAK interrupts for CTRL and BULK on USB_OTG_GINTSTS_HCINT
   if (__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_HCINT) && hhcd->Init.dma_enable == 0)
   {
     for (ch_num = 0; ch_num < hhcd->Init.Host_channels; ch_num++)
     {
-      if (USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_NAK)
+      if ((hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL) || (hhcd->hc[ch_num].ep_type == EP_TYPE_BULK))
       {
-        if ((hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL) || (hhcd->hc[ch_num].ep_type == EP_TYPE_BULK))
+        if (USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_NAK)
         {
           // workaround the interrupts flood issue: disable NAK interrupt
           USBx_HC(ch_num)->HCINTMSK &= ~USB_OTG_HCINT_NAK;
         }
-      }
+
+        if (USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_CHH)
+        {
+          // workaround the interrupts flood issue: disable CHH interrupt
+          USBx_HC(ch_num)->HCINTMSK &= ~USB_OTG_HCINT_CHH;
+        }
+      }      
     }
   }
 #else
