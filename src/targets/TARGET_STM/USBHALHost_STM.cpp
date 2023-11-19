@@ -468,7 +468,6 @@ void USBHALHost::UsbIrqhandler()
   {
     for (ch_num = 0; ch_num < hhcd->Init.Host_channels; ch_num++)
     {
-      LogicUint7(USBx_HC(ch_num)->HCINT);
       if ((hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL) || (hhcd->hc[ch_num].ep_type == EP_TYPE_BULK))
       {
         if (USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_NAK)
