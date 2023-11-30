@@ -31,6 +31,7 @@ public:
     virtual bool parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) = 0; //Must return true if the interface should be parsed
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir) = 0; //Must return true if the endpoint will be used
     virtual void parseConfigEntry(uint8_t type, uint8_t sub_type, uint8_t *data, uint32_t len) {};
+    virtual void setEnumeratingDeviceIndex(int index) {};
 };
 
 #endif /*IUSBENUMERATOR_H_*/
