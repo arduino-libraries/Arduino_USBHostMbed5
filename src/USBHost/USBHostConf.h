@@ -17,7 +17,7 @@
 #ifndef USBHOST_CONF_H
 #define USBHOST_CONF_H
 
-#define ARC_USB_FULL_SIZE=1
+#define ARC_USB_FULL_SIZE (1)
 
 #include "mbed_config.h"
 #include "Callback.h"
