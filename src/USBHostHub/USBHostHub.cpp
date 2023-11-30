@@ -147,7 +147,7 @@ void USBHostHub::disconnect()
     if ((hub_intf == -1) &&
             (intf_class == HUB_CLASS) &&
             (intf_subclass == 0) &&
-            (intf_protocol == 0)) {
+            ((intf_protocol == 0) || (intf_protocol == 1))) {
         hub_intf = intf_nb;
         return true;
     }
