@@ -27,9 +27,9 @@ extern uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 extern void HAL_HCD_DisableInt(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 extern void HAL_HCD_EnableInt(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 
-#if defined(TARGET_PORTENTA_H7)
+#if defined(TARGET_PORTENTA_H7) || defined(PORTENTA_H7_PINS)
 #define USBx_BASE   USB2_OTG_FS_PERIPH_BASE
-#elif defined(TARGET_GIGA)
+#elif defined(TARGET_GIGA) || defined(GIGA_PINS)
 #define USBx_BASE   USB1_OTG_HS_PERIPH_BASE
 #else
 #define USBx_BASE   USB1_OTG_HS_PERIPH_BASE

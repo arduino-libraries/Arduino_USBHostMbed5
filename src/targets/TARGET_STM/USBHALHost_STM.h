@@ -26,7 +26,7 @@
 #endif
 #endif
 
-#if defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI) || defined(TARGET_GIGA)
+#if defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI) || defined(TARGET_GIGA) || defined(GIGA_PINS)
 #define USBHAL_IRQn  OTG_HS_IRQn
 #else
 #define USBHAL_IRQn  OTG_FS_IRQn
@@ -103,7 +103,7 @@ static gpio_t gpio_powerpin;
 #define USB_POWER_OFF 1
 #define USB_POWERPIN_CONFIG {}
 
-#elif defined(TARGET_GIGA)
+#elif defined(TARGET_GIGA) || defined(GIGA_PINS)
 #define USB_POWER_ON  1
 #define USB_POWER_OFF 0
 #define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOA_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PA_15, USB_POWER_OFF);}
@@ -123,7 +123,7 @@ static gpio_t gpio_powerpin;
 #define USB_POWER_OFF 1
 #define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOC_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PC_9, USB_POWER_OFF);}
 
-#elif defined(TARGET_PORTENTA_H7_M7) || defined(TARGET_PORTENTA_H7_M4)
+#elif defined(TARGET_PORTENTA_H7_M7) || defined(PORTENTA_H7_PINS)
 #define USB_POWER_ON  0
 #define USB_POWER_OFF 1
 #define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOJ_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PJ_6, USB_POWER_OFF);}
@@ -172,7 +172,7 @@ USBHALHost::USBHALHost()
     hhcd->Init.speed =  HCD_SPEED_HIGH;
     hhcd->Init.phy_itface = HCD_PHY_ULPI;
 
-#elif defined(TARGET_GIGA)
+#elif defined(TARGET_GIGA) || defined(GIGA_PINS)
     hhcd->Instance = USB_OTG_HS;
     hhcd->Init.speed =  HCD_SPEED_FULL;
     hhcd->Init.phy_itface = USB_OTG_EMBEDDED_PHY;
@@ -267,7 +267,7 @@ USBHALHost::USBHALHost()
     __HAL_RCC_GPIOJ_CLK_ENABLE();
     pin_function(PJ_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // VBUS
 
-#elif defined(TARGET_GIGA)
+#elif defined(TARGET_GIGA) || defined(GIGA_PINS)
     __HAL_RCC_GPIOB_CLK_ENABLE();
     pin_function(PB_14, STM_PIN_DEFINE_SPEED(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_OTG2_FS, GPIO_SPEED_FREQ_VERY_HIGH)); // DM
     pin_function(PB_15, STM_PIN_DEFINE_SPEED(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_OTG2_FS, GPIO_SPEED_FREQ_VERY_HIGH)); // DM
@@ -326,8 +326,7 @@ USBHALHost::USBHALHost()
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
     pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
 
-#elif defined(TARGET_PORTENTA_H7_M7) || defined(TARGET_PORTENTA_H7_M4) || defined(TARGET_OPTA)
-
+#elif defined(TARGET_PORTENTA_H7_M7) || defined(PORTENTA_H7_PINS) || defined(TARGET_OPTA)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG2_FS)); // DM
     pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG2_FS)); // DP
@@ -347,7 +346,7 @@ USBHALHost::USBHALHost()
 #if defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
-#elif defined(TARGET_GIGA)
+#elif defined(TARGET_GIGA) || defined(GIGA_PINS)
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_SLEEP_DISABLE();
     __HAL_RCC_USB_OTG_HS_CLK_SLEEP_ENABLE();
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
