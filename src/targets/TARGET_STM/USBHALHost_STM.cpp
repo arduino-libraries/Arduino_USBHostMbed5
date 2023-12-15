@@ -91,7 +91,113 @@ uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd, uint8_t chnum)
 //  - URB_NOTREADY = a NAK, NYET, or not more than a couple of repeats of some of the errors that will
 //                   become URB_ERROR if they repeat several times in a row
 //
-#if ARC_USB_FULL_SIZE
+#if ARC_FS_OVER_HS
+//
+// In the underlying HAL code there are the following issues when running FS using the HS interface:
+// This effects the GIGA as it has no external PHY which is required in order to run at HS.
+//
+// 1. Transmitting length larger then packetsize can cause future issues reading, the NAK nightmare.
+// 2. Receiving multiple seperate packets can lead to lost data and the need to retry.
+//
+// So for transmitting we split the data into sizes of <= packet size and individually transfer them, only calling pPriv->transferCompleted() when all data is sent.
+// For receiving we receive all the data and call pPriv->transferCompleted().
+//
+// If we get NAKS on the control OUT EPs we make sure that USB_OTG_HCCHAR_CHDIS ans USB_OTG_HCCHAR_CHENA are reset to the correct values.
+//
+void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChannel, HCD_URBStateTypeDef urbState)
+{
+  USBHALHost_Private_t *pPriv = (USBHALHost_Private_t *)(pHcd->pData);
+
+  HCTD *pTransferDescriptor = (HCTD *)pPriv->addr[uChannel];
+
+
+  if (pTransferDescriptor) 
+  {
+    uint32_t endpointType = pHcd->hc[uChannel].ep_type;
+
+    if ((endpointType == EP_TYPE_INTR)) 
+    {
+      // Disable the channel interrupt and retransfer below
+      // TOD: really this retransfer should be queued up and transfered on the SOF interupt based on interval from descriptor.
+      pTransferDescriptor->state = USB_TYPE_IDLE ;
+      HAL_HCD_DisableInt(pHcd, uChannel);
+    } 
+    else if ((endpointType == EP_TYPE_BULK) || (endpointType == EP_TYPE_CTRL)) 
+    {
+      uint8_t  uEpIsInput  = pHcd->hc[uChannel].ep_is_in;
+
+      switch(urbState)
+      {
+        case URB_NOTREADY:
+        {
+          if(!uEpIsInput)
+          {
+            // make sure that USB_OTG_HCCHAR_CHDIS and USB_OTG_HCCHAR_CHENA are reset to the correct values
+						uint32_t tmpreg;
+						tmpreg = USBx_HC(uChannel)->HCCHAR;
+						tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
+						tmpreg |= USB_OTG_HCCHAR_CHENA;
+						USBx_HC(uChannel)->HCCHAR = tmpreg;
+          }
+        }
+        break;
+
+        case URB_DONE:
+        {
+          // first calculate how much we transferred, HAL metrics aonly work for IN EPs
+          uint16_t uPacketSize = pHcd->hc[uChannel].max_packet;
+          uint16_t uTransferredCount;
+
+          if(uEpIsInput)
+            uTransferredCount = HAL_HCD_HC_GetXferCount(pHcd, uChannel);
+          else
+            uTransferredCount = (pTransferDescriptor->size > uPacketSize) ? uPacketSize : pTransferDescriptor->size;
+
+          // update transfer descriptor
+          pTransferDescriptor->size -= uTransferredCount;
+          pTransferDescriptor->currBufPtr += uTransferredCount;
+
+          // if we are an OUT EP and there is still more data, send next packet
+          if(!uEpIsInput && pTransferDescriptor->size )
+          {
+            uint16_t uTransferSize = (pTransferDescriptor->size > uPacketSize) ? uPacketSize : pTransferDescriptor->size;
+            HAL_HCD_HC_SubmitRequest(pHcd, uChannel, uEpIsInput, endpointType, !pTransferDescriptor->setup, (uint8_t *) pTransferDescriptor->currBufPtr, uTransferSize, 0);
+            HAL_HCD_EnableInt(pHcd, uChannel);
+          }
+          else
+          {
+            // this will be handled below for USB_TYPE_IDLE
+            pTransferDescriptor->state = USB_TYPE_IDLE;
+          }
+        }
+        break;
+
+        case URB_ERROR:
+        {
+            // While USB_TYPE_ERROR in the endpoint state is used to activate error recovery, this value is actually never used.
+            // Going here will lead to a timeout at a higher layer, because of ep_queue.get() timeout, which will activate error
+            // recovery indirectly.
+            pTransferDescriptor->state = USB_TYPE_ERROR;
+        } 
+        break;
+
+        default:
+        {
+            pTransferDescriptor->state = USB_TYPE_PROCESSING;
+        }
+        break;
+      }
+    }
+
+    if (pTransferDescriptor->state == USB_TYPE_IDLE) 
+    {
+        // Call transferCompleted on correct object
+        void (USBHALHost::*func)(volatile uint32_t addr) = pPriv->transferCompleted;
+        (pPriv->inst->*func)(reinterpret_cast<std::uintptr_t>(pTransferDescriptor));
+    }
+  }
+}
+#elif ARC_USB_FULL_SIZE
 void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChannel, HCD_URBStateTypeDef urbState)
 {
   USBHALHost_Private_t *pPriv = (USBHALHost_Private_t *)(pHcd->pData);
@@ -442,7 +548,7 @@ void USBHALHost::_usbisr(void)
 
 void USBHALHost::UsbIrqhandler()
 {
-#if ARC_USB_FULL_SIZE
+#if ARC_USB_FULL_SIZE || ARC_FS_OVER_HS
   // fix from Lix Paulian : https://community.st.com/t5/stm32-mcus-products/stm32f4-stm32f7-usb-host-core-interrupt-flood/td-p/436225/page/4
   // Change to also stop flooding of channel halt interrupt
   uint32_t ch_num;
