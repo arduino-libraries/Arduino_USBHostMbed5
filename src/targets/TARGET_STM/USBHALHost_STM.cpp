@@ -121,6 +121,7 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChann
       // TOD: really this retransfer should be queued up and transfered on the SOF interupt based on interval from descriptor.
       pTransferDescriptor->state = USB_TYPE_IDLE ;
       HAL_HCD_DisableInt(pHcd, uChannel);
+      pTransferDescriptor->currBufPtr += HAL_HCD_HC_GetXferCount(pHcd, uChannel);
     } 
     else if ((endpointType == EP_TYPE_BULK) || (endpointType == EP_TYPE_CTRL)) 
     {
