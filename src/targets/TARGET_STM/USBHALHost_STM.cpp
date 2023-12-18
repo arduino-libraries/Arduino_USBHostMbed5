@@ -133,12 +133,20 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *pHcd, uint8_t uChann
         {
           if(!uEpIsInput)
           {
+#if ARC_NO_RESUBMITREQUEST
             // make sure that USB_OTG_HCCHAR_CHDIS and USB_OTG_HCCHAR_CHENA are reset to the correct values
 						uint32_t tmpreg;
 						tmpreg = USBx_HC(uChannel)->HCCHAR;
 						tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
 						tmpreg |= USB_OTG_HCCHAR_CHENA;
 						USBx_HC(uChannel)->HCCHAR = tmpreg;
+#else
+            // Submit the same request again, because the device wasn't ready to accept the last one
+            uint16_t uPacketSize = pHcd->hc[uChannel].max_packet;
+            uint16_t uTransferSize = (pTransferDescriptor->size > uPacketSize) ? uPacketSize : pTransferDescriptor->size;
+            HAL_HCD_HC_SubmitRequest(pHcd, uChannel, uEpIsInput, endpointType, !pTransferDescriptor->setup, (uint8_t *) pTransferDescriptor->currBufPtr, uTransferSize, 0);
+            HAL_HCD_EnableInt(pHcd, uChannel);
+#endif
           }
         }
         break;
