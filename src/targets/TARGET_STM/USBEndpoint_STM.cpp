@@ -178,10 +178,28 @@ USB_TYPE USBEndpoint::queueTransfer()
     }
     ep_queue.get(0);
     MBED_ASSERT(*addr == 0);
-#if ARC_USB_FULL_SIZE
+
+#if ARC_FS_OVER_HS
+//
+// In the underlying HAL code there are the following issues when running FS using the HS interface:
+// This effects the GIGA as it has no external PHY which is required in order to run at HS.
+//
+// 1. Transmitting length larger then packetsize can cause future issues reading, the NAK nightmare.
+// 2. Receiving multiple seperate packets can lead to lost data and the need to retry.
+//
+// So for transmitting we split the data into sizes of <= packet size, we initially set of a single transfer here 
+// and HAL_HCD_HC_NotifyURBChange_Callback() will then handle subsequent transfers if needed.
+//
+// For receiving we receive all the data.
+//
+  if(dir == OUT)
+    transfer_len = td_current->size <= max_size ? td_current->size : max_size;
+  else
+	  transfer_len = td_current->size;
+#elif ARC_USB_FULL_SIZE
 	transfer_len =   td_current->size;
 #else
-    transfer_len =   td_current->size <= max_size ? td_current->size : max_size;
+  transfer_len =   td_current->size <= max_size ? td_current->size : max_size;
 #endif
 
     buf_start = (uint8_t *)td_current->currBufPtr;
