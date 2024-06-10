@@ -5,7 +5,7 @@
   get a list of the existing folders and files.
 
   The circuit:
-   - Portenta H7
+   - Portenta H7 or Giga R1 WiFi
 
   This example code is in the public domain.
 */
