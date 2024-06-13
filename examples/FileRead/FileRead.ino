@@ -7,7 +7,7 @@
   in your storage device and write some content inside.
 
   The circuit:
-   - Portenta H7 or Giga R1 WiFi
+   - Portenta H7 or GIGA R1 WiFi
 
   This example code is in the public domain.
 */

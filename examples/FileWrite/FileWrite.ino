@@ -5,7 +5,7 @@
   write a file, eventually overwriting the original content.
 
   The circuit:
-   - Portenta H7 or Giga R1 WiFi
+   - Portenta H7 or GIGA R1 WiFi
 
   This example code is in the public domain.
 */
